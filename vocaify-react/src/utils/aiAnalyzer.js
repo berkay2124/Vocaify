@@ -155,3 +155,169 @@ function analyzeCVDemo(cvText) {
 export function isAIConfigured() {
     return !!ANTHROPIC_API_KEY;
 }
+
+/**
+ * Başarılı işe alımları (personel statüsündeki çalışanları) analiz eder
+ * KPI skorları ve CV özetlerinden ortak yetkinlikleri ve başarı kalıplarını çıkarır
+ * @param {Array} employees - Tüm çalışanlar listesi
+ * @returns {Promise<Object>} AI stratejik öngörü raporu
+ */
+export async function analyzePredictiveInsights(employees) {
+    // Sadece personel statüsündeki çalışanları filtrele
+    const successfulHires = employees.filter(emp => emp.status === 'personel');
+
+    if (successfulHires.length === 0) {
+        return {
+            success: false,
+            message: 'Henüz analiz edilecek yeterli personel verisi yok.',
+            insights: []
+        };
+    }
+
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('Anthropic API key bulunamadı. Demo modu kullanılıyor.');
+        return analyzePredictiveInsightsDemo(successfulHires);
+    }
+
+    try {
+        // Analiz için veri hazırla
+        const analysisData = successfulHires.map(emp => ({
+            name: emp.name,
+            position: emp.analysis?.position || emp.position || 'Belirtilmemiş',
+            experience_years: emp.analysis?.experience_years || 0,
+            skills: emp.analysis?.skills || [],
+            summary: emp.analysis?.summary || '',
+            kpiScore: emp.totalKpiScore || 0,
+            department: emp.department || 'Genel',
+            startDate: emp.startDate
+        }));
+
+        const prompt = `Sen bir İnsan Kaynakları strateji danışmanısın. Aşağıda bir şirketin başarılı işe alımlarının (personel olarak işe başlayanların) verilerini göreceksin.
+
+VERİ:
+${JSON.stringify(analysisData, null, 2)}
+
+GÖREV:
+Bu başarılı işe alımlardaki ortak kalıpları, gizli yetkinlikleri ve başarı faktörlerini analiz et. Aşağıdaki soruları yanıtla:
+
+1. KPI skorları ve yetenekler arasında hangi ortak paternler var?
+2. Başarılı adaylarda öne çıkan "gizli" yetkinlikler nelerdir? (Sadece teknik değil, soft skill'ler de dahil)
+3. Gelecekte en iyi kimi işe almalıyız? (Hangi profil başarı şansı en yüksek?)
+
+ZORUNLU FORMAT:
+Yanıtını şu JSON formatında ver, başka bir şey ekleme:
+{
+  "insights": [
+    {
+      "title": "İçgörü Başlığı",
+      "description": "Detaylı açıklama (1-2 cümle)",
+      "actionable": "Eylem önerisi (ne yapmalıyız?)"
+    },
+    {
+      "title": "İkinci İçgörü Başlığı",
+      "description": "...",
+      "actionable": "..."
+    },
+    {
+      "title": "Üçüncü İçgörü Başlığı",
+      "description": "...",
+      "actionable": "..."
+    }
+  ],
+  "summary": "Tüm analizin özet sonucu (1-2 cümle)"
+}
+
+SADECE JSON döndür, başka metin ekleme.`;
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 3000,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Anthropic API hatası:', errorData);
+            throw new Error(`API isteği başarısız: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.content[0].text;
+
+        // JSON'u parse et
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('AI yanıtında JSON bulunamadı');
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+
+        return {
+            success: true,
+            insights: parsedData.insights || [],
+            summary: parsedData.summary || 'Analiz tamamlandı.',
+            analyzedCount: successfulHires.length
+        };
+
+    } catch (error) {
+        console.error('Tahminleme analizi hatası:', error);
+        console.warn('AI analizi başarısız oldu, demo modu kullanılıyor.');
+        return analyzePredictiveInsightsDemo(successfulHires);
+    }
+}
+
+/**
+ * Demo/Fallback modu - Tahminleme analizi için basit istatistik
+ * @param {Array} successfulHires - Başarılı işe alımlar
+ * @returns {Object} Demo öngörü raporu
+ */
+function analyzePredictiveInsightsDemo(successfulHires) {
+    const avgKpiScore = successfulHires.reduce((sum, emp) => sum + (emp.totalKpiScore || 0), 0) / successfulHires.length;
+    const allSkills = successfulHires.flatMap(emp => emp.analysis?.skills || []);
+    const skillFrequency = {};
+    allSkills.forEach(skill => {
+        skillFrequency[skill] = (skillFrequency[skill] || 0) + 1;
+    });
+    const topSkills = Object.entries(skillFrequency)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([skill]) => skill);
+
+    const avgExperience = successfulHires.reduce((sum, emp) => sum + (emp.analysis?.experience_years || 0), 0) / successfulHires.length;
+
+    return {
+        success: true,
+        analyzedCount: successfulHires.length,
+        insights: [
+            {
+                title: "Yüksek KPI Skoru = Başarı",
+                description: `Başarılı adaylarınızın ortalama KPI skoru ${avgKpiScore.toFixed(0)}/100. Yüksek KPI skorlu adaylara öncelik verin.`,
+                actionable: `${avgKpiScore.toFixed(0)} ve üzeri KPI skoruna sahip adayları öncelikli değerlendirin.`
+            },
+            {
+                title: "Ortak Yetkinlik Profili",
+                description: `En sık görülen yetenekler: ${topSkills.slice(0, 3).join(', ')}. Bu yeteneklere sahip adaylar daha başarılı oluyor.`,
+                actionable: `Bu yetenekleri iş ilanlarında özellikle vurgulayın ve filtreleme kriterlerine ekleyin.`
+            },
+            {
+                title: "İdeal Deneyim Seviyesi",
+                description: `Başarılı adaylarınızın ortalama deneyimi ${avgExperience.toFixed(1)} yıl. Bu seviyedeki adaylar optimal performans gösteriyor.`,
+                actionable: `${Math.max(0, avgExperience - 2).toFixed(0)}-${(avgExperience + 2).toFixed(0)} yıl arası deneyime sahip adaylara odaklanın.`
+            }
+        ],
+        summary: `${successfulHires.length} başarılı işe alım analiz edildi. Ortalama KPI: ${avgKpiScore.toFixed(0)}, ideal deneyim: ${avgExperience.toFixed(1)} yıl.`
+    };
+}

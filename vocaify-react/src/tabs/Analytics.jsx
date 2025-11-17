@@ -1,15 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
-import { BadgeCheck, UserX, HardDrive, UserRoundCog } from 'lucide-react';
+import { BadgeCheck, UserX, HardDrive, UserRoundCog, Sparkles, TrendingUp, Lightbulb } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getStats, getAnalytics } from '../utils/helpers';
 import { STATUS_CONFIG, PLATFORMS } from '../config/constants';
+import { analyzePredictiveInsights } from '../utils/aiAnalyzer';
 
 Chart.register(...registerables);
 
 /**
  * Analizler ve raporlar sekmesini render eder
  * İstatistikler, yaşam döngüsü dağılımı (Doughnut Chart) ve platform analizi (Bar Chart) içerir
+ * AI Strateji: Tahminleme ve stratejik öneriler (AŞAMA 15)
  */
 function Analytics() {
     const { candidates, employees } = useApp();
@@ -20,6 +22,11 @@ function Analytics() {
     const platformChartRef = useRef(null);
     const lifecycleChartInstance = useRef(null);
     const platformChartInstance = useRef(null);
+
+    // AI Strateji state
+    const [aiInsights, setAiInsights] = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState(null);
 
     useEffect(() => {
         // Destroy existing charts
@@ -158,6 +165,29 @@ function Analytics() {
         };
     }, [candidates, employees]);
 
+    // AI Strateji Analizi Tetikle
+    const handleAIAnalysis = async () => {
+        setAiLoading(true);
+        setAiError(null);
+
+        try {
+            const result = await analyzePredictiveInsights(employees);
+
+            if (!result.success) {
+                setAiError(result.message);
+                setAiInsights(null);
+            } else {
+                setAiInsights(result);
+            }
+        } catch (error) {
+            console.error('AI analizi hatası:', error);
+            setAiError('AI analizi sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+            setAiInsights(null);
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
     return (
         <div className="space-y-6" style={{ animation: 'fadeIn 0.5s ease-out' }}>
             <h2 className="text-3xl font-bold text-white mb-6">Analizler ve Raporlar</h2>
@@ -207,6 +237,102 @@ function Analytics() {
                         <canvas ref={platformChartRef}></canvas>
                     </div>
                 </div>
+            </div>
+
+            {/* AI Strateji Bölümü - AŞAMA 15 */}
+            <div className="glass p-6 rounded-2xl border-l-4 border-purple-500">
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                        <Sparkles className="w-8 h-8 text-purple-400" />
+                        <div>
+                            <h3 className="text-2xl font-bold text-white">AI Strateji Danışmanı</h3>
+                            <p className="text-gray-400 text-sm">Başarılı işe alımlarınızı analiz ederek stratejik öneriler sunar</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleAIAnalysis}
+                        disabled={aiLoading || employees.filter(e => e.status === 'personel').length === 0}
+                        className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                            aiLoading
+                                ? 'bg-purple-500/20 text-purple-300 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
+                        }`}
+                    >
+                        {aiLoading ? (
+                            <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-purple-300"></div>
+                                Analiz Ediliyor...
+                            </>
+                        ) : (
+                            <>
+                                <TrendingUp className="w-5 h-5" />
+                                Tahminleme Analizi Yap
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                {/* Hata Durumu */}
+                {aiError && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
+                        <p className="text-red-300 text-sm">{aiError}</p>
+                    </div>
+                )}
+
+                {/* Analiz Sonuçları */}
+                {aiInsights && aiInsights.success && (
+                    <div className="space-y-4">
+                        {/* Özet */}
+                        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-lg p-4">
+                            <p className="text-purple-200 font-medium">
+                                📊 {aiInsights.analyzedCount} başarılı işe alım analiz edildi
+                            </p>
+                            <p className="text-gray-300 text-sm mt-2">{aiInsights.summary}</p>
+                        </div>
+
+                        {/* İçgörüler */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {aiInsights.insights.map((insight, index) => (
+                                <div
+                                    key={index}
+                                    className="glass p-5 rounded-xl hover:scale-105 transition-transform border border-purple-500/20"
+                                >
+                                    <div className="flex items-start gap-3 mb-3">
+                                        <Lightbulb className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-1" />
+                                        <h4 className="text-white font-bold text-lg">{insight.title}</h4>
+                                    </div>
+                                    <p className="text-gray-300 text-sm mb-3">{insight.description}</p>
+                                    <div className="bg-green-500/10 border-l-4 border-green-500 p-3 rounded">
+                                        <p className="text-green-300 text-xs font-medium">💡 Eylem Önerisi:</p>
+                                        <p className="text-green-200 text-sm mt-1">{insight.actionable}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* İlk Durum - Henüz analiz yapılmamış */}
+                {!aiInsights && !aiError && !aiLoading && (
+                    <div className="text-center py-12">
+                        <Sparkles className="w-16 h-16 text-purple-400 mx-auto mb-4 opacity-50" />
+                        <p className="text-gray-400 text-lg mb-2">
+                            Stratejik öneriler için AI analizi yapın
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                            Başarılı işe alımlarınızdaki gizli kalıpları keşfedin
+                        </p>
+                    </div>
+                )}
+
+                {/* Yeterli veri yok uyarısı */}
+                {employees.filter(e => e.status === 'personel').length === 0 && (
+                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mt-4">
+                        <p className="text-yellow-300 text-sm">
+                            ⚠️ AI analizi için en az 1 personel kaydı gereklidir. Lütfen önce adayları "Personel" aşamasına taşıyın.
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
