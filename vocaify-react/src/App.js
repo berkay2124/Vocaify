@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider, useApp } from './context/AppContext';
 import './i18n'; // Initialize i18n
 import Header from './components/Header';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 import Navigation from './components/Navigation';
 import Loader from './components/Loader';
 import Modal from './modal/Modal';
@@ -231,11 +232,12 @@ function AppContent() {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             <Header onCVUpload={handleCVUpload} />
             <Navigation />
-            <main className="max-w-7xl mx-auto px-6 py-8">
+            <main className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8">
                 {renderActiveTab()}
             </main>
             <Modal />
             <Loader loading={loading} />
+            <PWAInstallPrompt />
         </div>
     );
 }
