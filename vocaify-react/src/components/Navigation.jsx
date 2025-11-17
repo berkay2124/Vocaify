@@ -13,16 +13,24 @@ function Navigation() {
     const { activeTab, setActiveTab } = useApp();
     const { currentUser } = useAuth();
 
+    // Ana sekmeler + 5 kritik modül (görünürlük için)
     const allTabs = [
+        // Core ATS
         { id: 'dashboard', label: t('navigation.dashboard'), icon: LayoutDashboard },
         { id: 'candidates', label: t('navigation.candidates'), icon: Users },
         { id: 'employees', label: t('navigation.employees'), icon: UserCheck },
-        { id: 'search', label: t('navigation.aiSearch'), icon: Search },
+
+        // ⭐ KRİTİK MODÜLLER (39 Aşamanın En Önemlileri)
+        { id: 'billing', label: t('navigation.billing'), icon: CreditCard },
+        { id: 'performance', label: 'Performans Yönetimi', icon: TrendingUp },
+        { id: 'onboarding', label: 'Onboarding', icon: UserPlus },
+        { id: 'superadmin', label: 'Süper Admin', icon: Shield },
         { id: 'sourcing', label: 'AI Sourcing', icon: Sparkles },
+
+        // Diğer Modüller
+        { id: 'search', label: t('navigation.aiSearch'), icon: Search },
         { id: 'analytics', label: t('navigation.analytics'), icon: BarChart3 },
         { id: 'feedback', label: 'Mülakat Geri Bildirimi', icon: MessageSquare },
-        { id: 'onboarding', label: 'Onboarding', icon: UserPlus },
-        { id: 'performance', label: 'Performans Yönetimi', icon: TrendingUp },
         { id: 'surveys', label: 'Bağlılık Anketleri', icon: PieChart },
         { id: 'internaljobs', label: 'İç İlanlar', icon: Briefcase },
         { id: 'knowledgebase', label: 'Bilgi Bankası', icon: BookOpen },
@@ -34,9 +42,7 @@ function Navigation() {
         { id: 'notifications', label: 'Bildirim Yönetimi', icon: Bell },
         { id: 'gamification', label: 'Oyunlaştırma', icon: Trophy },
         { id: 'kudosfeed', label: 'Kudos Akışı', icon: Heart },
-        { id: 'integrations', label: 'Entegrasyonlar', icon: Link2 },
-        { id: 'billing', label: t('navigation.billing'), icon: CreditCard },
-        { id: 'superadmin', label: 'Süper Admin', icon: Shield }
+        { id: 'integrations', label: 'Entegrasyonlar', icon: Link2 }
     ];
 
     // Kullanıcının rolüne göre görünür sekmeleri filtrele
