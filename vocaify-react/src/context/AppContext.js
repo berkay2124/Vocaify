@@ -29,6 +29,7 @@ export function AppProvider({ children }) {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [candidates, setCandidates] = useState([]);
     const [employees, setEmployees] = useState([]);
+    const [expenses, setExpenses] = useState([]); // AŞAMA 33: Gider talepleri
     const [loading, setLoading] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -204,11 +205,75 @@ export function AppProvider({ children }) {
         setModalType('');
     };
 
+    /**
+     * AŞAMA 33: Expense Management Functions
+     */
+
+    // Yeni gider talebi oluştur (Çalışan)
+    const addExpenseClaim = (expenseData) => {
+        const newExpense = {
+            id: 'EXP-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+            employeeId: currentUser?.uid || 'unknown',
+            employeeName: currentUser?.name || 'Unknown Employee',
+            type: expenseData.type,
+            amount: parseFloat(expenseData.amount),
+            currency: '₺',
+            description: expenseData.description || '',
+            receipt: expenseData.receipt || 'placeholder-receipt.jpg', // Simüle
+            status: 'pending',
+            submitDate: new Date().toISOString(),
+            reviewDate: null,
+            reviewedBy: null,
+            reviewNote: ''
+        };
+
+        setExpenses(prev => [newExpense, ...prev]);
+        console.log('✅ Yeni gider talebi oluşturuldu:', newExpense.id);
+        return newExpense;
+    };
+
+    // Gider talebini güncelle (İK Admin)
+    const updateExpenseClaim = (expenseId, updates) => {
+        setExpenses(prev => prev.map(exp =>
+            exp.id === expenseId ? { ...exp, ...updates } : exp
+        ));
+        console.log('✅ Gider talebi güncellendi:', expenseId);
+    };
+
+    // Gider talebini onayla (İK Admin)
+    const approveExpenseClaim = (expenseId, note = '') => {
+        setExpenses(prev => prev.map(exp =>
+            exp.id === expenseId ? {
+                ...exp,
+                status: 'approved',
+                reviewDate: new Date().toISOString(),
+                reviewedBy: currentUser?.name || 'Admin',
+                reviewNote: note
+            } : exp
+        ));
+        console.log('✅ Gider talebi onaylandı:', expenseId);
+    };
+
+    // Gider talebini reddet (İK Admin)
+    const rejectExpenseClaim = (expenseId, note = '') => {
+        setExpenses(prev => prev.map(exp =>
+            exp.id === expenseId ? {
+                ...exp,
+                status: 'rejected',
+                reviewDate: new Date().toISOString(),
+                reviewedBy: currentUser?.name || 'Admin',
+                reviewNote: note
+            } : exp
+        ));
+        console.log('❌ Gider talebi reddedildi:', expenseId);
+    };
+
     const value = {
         // State
         activeTab,
         candidates,
         employees,
+        expenses,
         loading,
         dataLoading,
         searchQuery,
@@ -222,6 +287,7 @@ export function AppProvider({ children }) {
         setActiveTab,
         setCandidates,
         setEmployees,
+        setExpenses,
         setLoading,
         setSearchQuery,
         setSelectedPerson,
@@ -240,7 +306,12 @@ export function AppProvider({ children }) {
         loadDataFromFirestore,
         // Modal Functions
         openModal,
-        closeModal
+        closeModal,
+        // Expense Functions (AŞAMA 33)
+        addExpenseClaim,
+        updateExpenseClaim,
+        approveExpenseClaim,
+        rejectExpenseClaim
     };
 
     // Veriler yüklenene kadar loading göster

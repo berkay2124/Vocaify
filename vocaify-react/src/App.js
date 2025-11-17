@@ -29,6 +29,7 @@ import ReportBuilder from './pages/ReportBuilder';
 import GamificationSettings from './pages/GamificationSettings';
 import KudosFeed from './pages/KudosFeed';
 import StrategicModeling from './pages/StrategicModeling';
+import ExpenseAdmin from './pages/ExpenseAdmin';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
@@ -210,6 +211,8 @@ function AppContent() {
                 return <KudosFeed />;
             case 'strategicmodeling':
                 return <StrategicModeling />;
+            case 'expenses':
+                return <ExpenseAdmin />;
             default:
                 return <Dashboard />;
         }

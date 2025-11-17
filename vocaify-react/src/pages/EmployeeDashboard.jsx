@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star, Briefcase, Heart, Award, TrendingUp, Loader } from 'lucide-react';
+import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star, Briefcase, Heart, Award, TrendingUp, Loader, Receipt, Upload, XCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import MyPerformance from './MyPerformance';
@@ -15,7 +15,7 @@ import { generateCareerPath } from '../utils/aiAnalyzer';
  */
 function EmployeeDashboard() {
     const { currentUser, logout } = useAuth();
-    const { candidates, setCandidates } = useApp();
+    const { candidates, setCandidates, expenses, addExpenseClaim } = useApp();
     const [activeSection, setActiveSection] = useState('profile');
 
     // Çalışanın kendi kaydını bul
@@ -46,6 +46,15 @@ function EmployeeDashboard() {
     const [targetRole, setTargetRole] = useState('');
     const [careerPath, setCareerPath] = useState(null);
     const [loadingCareerPath, setLoadingCareerPath] = useState(false);
+
+    // AŞAMA 33: Gider Talebi state
+    const [expenseForm, setExpenseForm] = useState({
+        type: 'Ulaşım',
+        amount: '',
+        description: '',
+        receipt: null
+    });
+    const [expenseSubmitted, setExpenseSubmitted] = useState(false);
 
     // Profil güncelleme
     const handleProfileUpdate = () => {
@@ -98,6 +107,45 @@ function EmployeeDashboard() {
             setLoadingCareerPath(false);
         }
     };
+
+    // AŞAMA 33: Gider talebi gönder
+    const handleExpenseSubmit = (e) => {
+        e.preventDefault();
+
+        if (!expenseForm.amount || parseFloat(expenseForm.amount) <= 0) {
+            alert('Lütfen geçerli bir tutar girin.');
+            return;
+        }
+
+        if (!expenseForm.description.trim()) {
+            alert('Lütfen açıklama girin.');
+            return;
+        }
+
+        // Yeni gider talebi oluştur
+        addExpenseClaim({
+            type: expenseForm.type,
+            amount: expenseForm.amount,
+            description: expenseForm.description,
+            receipt: expenseForm.receipt
+        });
+
+        // Formu sıfırla
+        setExpenseForm({
+            type: 'Ulaşım',
+            amount: '',
+            description: '',
+            receipt: null
+        });
+
+        setExpenseSubmitted(true);
+        setTimeout(() => setExpenseSubmitted(false), 3000);
+
+        alert('Gider talebiniz başarıyla gönderildi!');
+    };
+
+    // Çalışanın kendi gider talepleri
+    const myExpenses = expenses.filter(exp => exp.employeeId === currentUser?.uid);
 
     // İzin talebi gönder
     const handleLeaveRequestSubmit = () => {
@@ -213,6 +261,7 @@ function EmployeeDashboard() {
                     {[
                         { id: 'profile', label: 'Benim Profilim', icon: User },
                         { id: 'leave', label: 'İzin Talebi', icon: Calendar },
+                        { id: 'expenses', label: 'Giderlerim', icon: Receipt },
                         { id: 'performance', label: 'Performansım', icon: Target },
                         { id: 'surveys', label: 'Anketlerim', icon: MessageSquare },
                         { id: 'kudos', label: 'Kudos (Takdir)', icon: Heart },
@@ -466,6 +515,209 @@ function EmployeeDashboard() {
                                                 )}
                                             </div>
                                         ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* AŞAMA 33: Gider Talebi Bölümü */}
+                    {activeSection === 'expenses' && (
+                        <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                            {/* Yeni Gider Talebi Formu */}
+                            <div className="glass p-6 rounded-2xl mb-6">
+                                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                                    <Receipt className="w-6 h-6 text-green-400" />
+                                    Yeni Gider Talebi
+                                </h2>
+
+                                {expenseSubmitted ? (
+                                    <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-6 text-center">
+                                        <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
+                                        <p className="text-green-300 font-medium">Gider talebiniz başarıyla gönderildi!</p>
+                                        <p className="text-gray-400 text-sm mt-2">İK departmanı tarafından incelenecektir.</p>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleExpenseSubmit} className="space-y-4">
+                                        <div>
+                                            <label className="text-gray-300 text-sm mb-2 block">Gider Tipi *</label>
+                                            <select
+                                                value={expenseForm.type}
+                                                onChange={(e) => setExpenseForm({ ...expenseForm, type: e.target.value })}
+                                                className="w-full px-4 py-3 bg-slate-800 text-white rounded-lg border border-green-500/30 focus:border-green-500 transition-all"
+                                            >
+                                                <option value="Ulaşım">🚗 Ulaşım</option>
+                                                <option value="Yemek">🍽️ Yemek</option>
+                                                <option value="Konaklama">🏨 Konaklama</option>
+                                                <option value="Eğitim">📚 Eğitim</option>
+                                                <option value="Ekipman">💻 Ekipman</option>
+                                                <option value="Diğer">📄 Diğer</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-gray-300 text-sm mb-2 block">Tutar (₺) *</label>
+                                            <input
+                                                type="number"
+                                                value={expenseForm.amount}
+                                                onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                                                placeholder="Örn: 250"
+                                                min="0"
+                                                step="0.01"
+                                                className="w-full px-4 py-3 bg-slate-800 text-white rounded-lg border border-green-500/30 focus:border-green-500 transition-all"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="text-gray-300 text-sm mb-2 block">Açıklama *</label>
+                                            <textarea
+                                                value={expenseForm.description}
+                                                onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
+                                                rows="3"
+                                                className="w-full px-4 py-3 bg-slate-800 text-white rounded-lg border border-green-500/30 focus:border-green-500 transition-all resize-none"
+                                                placeholder="Gider detayını açıklayın... (Örn: İstanbul - Ankara uçak bileti)"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="text-gray-300 text-sm mb-2 block">
+                                                Makbuz/Fatura (Simüle)
+                                            </label>
+                                            <div className="border-2 border-dashed border-green-500/30 rounded-lg p-6 text-center bg-slate-800/30">
+                                                <Upload className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                                                <p className="text-gray-400 text-sm mb-2">
+                                                    Makbuz yükleme özelliği simüle edilmiştir
+                                                </p>
+                                                <p className="text-gray-500 text-xs">
+                                                    Gerçek sistemde buradan PDF/JPG yükleyebilirsiniz
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <Receipt className="w-5 h-5" />
+                                            Gider Talebini Gönder
+                                        </button>
+                                    </form>
+                                )}
+                            </div>
+
+                            {/* Gider Geçmişi */}
+                            <div className="glass p-6 rounded-2xl">
+                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-green-400" />
+                                    Gider Taleplerim
+                                </h3>
+
+                                {myExpenses.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <Receipt className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                                        <p className="text-gray-400">Henüz gider talebiniz bulunmuyor.</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {myExpenses.map((expense) => {
+                                            const statusColors = {
+                                                pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+                                                approved: 'bg-green-500/20 text-green-300 border-green-500/30',
+                                                rejected: 'bg-red-500/20 text-red-300 border-red-500/30'
+                                            };
+
+                                            const statusLabels = {
+                                                pending: 'Beklemede',
+                                                approved: 'Onaylandı',
+                                                rejected: 'Reddedildi'
+                                            };
+
+                                            const statusIcons = {
+                                                pending: <Clock className="w-4 h-4" />,
+                                                approved: <CheckCircle className="w-4 h-4" />,
+                                                rejected: <XCircle className="w-4 h-4" />
+                                            };
+
+                                            return (
+                                                <div key={expense.id} className="bg-slate-800/50 p-4 rounded-lg border border-green-500/20">
+                                                    <div className="flex items-start justify-between mb-3">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-xl">{
+                                                                    expense.type === 'Ulaşım' ? '🚗' :
+                                                                    expense.type === 'Yemek' ? '🍽️' :
+                                                                    expense.type === 'Konaklama' ? '🏨' :
+                                                                    expense.type === 'Eğitim' ? '📚' :
+                                                                    expense.type === 'Ekipman' ? '💻' : '📄'
+                                                                }</span>
+                                                                <span className="text-white font-medium">{expense.type}</span>
+                                                            </div>
+                                                            <p className="text-white text-2xl font-bold mb-1">
+                                                                {expense.amount.toLocaleString('tr-TR')} ₺
+                                                            </p>
+                                                            <p className="text-gray-400 text-sm mb-2">{expense.description}</p>
+                                                            <p className="text-gray-500 text-xs">
+                                                                Tarih: {new Date(expense.submitDate).toLocaleDateString('tr-TR', {
+                                                                    year: 'numeric',
+                                                                    month: 'long',
+                                                                    day: 'numeric',
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                })}
+                                                            </p>
+                                                        </div>
+                                                        <div className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${statusColors[expense.status]}`}>
+                                                            {statusIcons[expense.status]}
+                                                            {statusLabels[expense.status]}
+                                                        </div>
+                                                    </div>
+
+                                                    {expense.reviewedBy && (
+                                                        <div className="pt-3 border-t border-slate-700/50">
+                                                            <p className="text-gray-500 text-xs mb-1">
+                                                                İnceleyen: <span className="text-gray-400">{expense.reviewedBy}</span>
+                                                                {expense.reviewDate && (
+                                                                    <span className="ml-2">
+                                                                        ({new Date(expense.reviewDate).toLocaleDateString('tr-TR')})
+                                                                    </span>
+                                                                )}
+                                                            </p>
+                                                            {expense.reviewNote && (
+                                                                <p className="text-gray-400 text-xs mt-1">
+                                                                    Not: {expense.reviewNote}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Özet İstatistikler */}
+                                {myExpenses.length > 0 && (
+                                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                                            <p className="text-gray-400 text-xs mb-1">Bekleyen</p>
+                                            <p className="text-white text-xl font-bold">
+                                                {myExpenses.filter(e => e.status === 'pending').reduce((sum, e) => sum + e.amount, 0).toLocaleString('tr-TR')} ₺
+                                            </p>
+                                        </div>
+                                        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                                            <p className="text-gray-400 text-xs mb-1">Onaylanan</p>
+                                            <p className="text-white text-xl font-bold">
+                                                {myExpenses.filter(e => e.status === 'approved').reduce((sum, e) => sum + e.amount, 0).toLocaleString('tr-TR')} ₺
+                                            </p>
+                                        </div>
+                                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                                            <p className="text-gray-400 text-xs mb-1">Reddedilen</p>
+                                            <p className="text-white text-xl font-bold">
+                                                {myExpenses.filter(e => e.status === 'rejected').reduce((sum, e) => sum + e.amount, 0).toLocaleString('tr-TR')} ₺
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
