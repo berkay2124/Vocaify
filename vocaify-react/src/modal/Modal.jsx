@@ -1,5 +1,5 @@
-import React from 'react';
-import { XCircle, Eye, Award, DollarSign, FileStack, Zap, History, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { XCircle, Eye, Award, DollarSign, FileStack, Zap, History, TrendingUp, Wand2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { canViewModalTab } from '../data/roles';
@@ -11,14 +11,17 @@ import DocumentsTab from './ModalTabs/DocumentsTab';
 import ActionsTab from './ModalTabs/ActionsTab';
 import HistoryTab from './ModalTabs/HistoryTab';
 import PerformanceTab from './ModalTabs/PerformanceTab';
+import AIToolkit from '../components/AIToolkit';
 
 /**
  * Ana modal bileşenini render eder
  * Aday/personel detay modal'ı, sekme başlıkları ve içeriğini gösterir
+ * AŞAMA 16: AI Araç Kiti entegrasyonu
  */
 function Modal() {
     const { showModal, selectedPerson, modalTab, setModalTab, closeModal } = useApp();
     const { currentUser } = useAuth();
+    const [showAIToolkit, setShowAIToolkit] = useState(false);
 
     if (!showModal || !selectedPerson) return null;
 
@@ -80,9 +83,22 @@ function Modal() {
                             </span>
                         </div>
                     </div>
-                    <button onClick={closeModal} className="text-gray-400 hover:text-white transition-all">
-                        <XCircle className="w-6 h-6" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                        {/* AI Asistan Butonu - AŞAMA 16 */}
+                        {!isEmployee && (
+                            <button
+                                onClick={() => setShowAIToolkit(true)}
+                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 font-medium text-sm"
+                                title="AI Araç Kiti"
+                            >
+                                <Wand2 className="w-4 h-4" />
+                                AI Asistan
+                            </button>
+                        )}
+                        <button onClick={closeModal} className="text-gray-400 hover:text-white transition-all">
+                            <XCircle className="w-6 h-6" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Modal Sekme Başlıkları */}
@@ -110,6 +126,14 @@ function Modal() {
                     {getModalTabContent()}
                 </div>
             </div>
+
+            {/* AI Toolkit Modal - AŞAMA 16 */}
+            {showAIToolkit && (
+                <AIToolkit
+                    candidate={person}
+                    onClose={() => setShowAIToolkit(false)}
+                />
+            )}
         </div>
     );
 }

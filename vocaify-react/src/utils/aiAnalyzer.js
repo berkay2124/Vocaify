@@ -321,3 +321,357 @@ function analyzePredictiveInsightsDemo(successfulHires) {
         summary: `${successfulHires.length} başarılı işe alım analiz edildi. Ortalama KPI: ${avgKpiScore.toFixed(0)}, ideal deneyim: ${avgExperience.toFixed(1)} yıl.`
     };
 }
+
+/**
+ * AŞAMA 16: Üretken AI Araç Kiti
+ * İş ilanı, mülakat soruları ve e-posta metinleri oluşturur
+ */
+
+/**
+ * İş İlanı Yazarı - Pozisyon ve sorumluluklar verilerek tam iş ilanı oluşturur
+ * @param {string} positionTitle - Pozisyon adı
+ * @param {Array<string>} responsibilities - Ana sorumluluklar (3 adet)
+ * @returns {Promise<Object>} İş ilanı metni
+ */
+export async function generateJobDescription(positionTitle, responsibilities) {
+    if (!positionTitle || !responsibilities || responsibilities.length === 0) {
+        return {
+            success: false,
+            message: 'Pozisyon adı ve sorumluluklar gereklidir.'
+        };
+    }
+
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('Anthropic API key bulunamadı. Demo modu kullanılıyor.');
+        return {
+            success: true,
+            jobDescription: `${positionTitle} İş İlanı\n\nAramıza katılacak ${positionTitle} arıyoruz!\n\nSorumluluklar:\n${responsibilities.map((r, i) => `${i + 1}. ${r}`).join('\n')}\n\nNitelikler:\n- İlgili alanda deneyim\n- Takım çalışmasına yatkınlık\n- Güçlü iletişim becerileri\n\nBaşvurmak için lütfen CV'nizi gönderin.`
+        };
+    }
+
+    try {
+        const prompt = `Sen bir İnsan Kaynakları uzmanısın. Aşağıdaki bilgileri kullanarak profesyonel, ilgi çekici ve detaylı bir iş ilanı oluştur:
+
+POZİSYON: ${positionTitle}
+
+ANA SORUMLULUKLAAR:
+${responsibilities.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+
+GÖREV:
+- Modern ve profesyonel bir dil kullan
+- Şirket kültürüne vurgu yap
+- Açık ve net nitelikler/gereksinimler belirt
+- Başvuru süreci hakkında bilgi ver
+- İlgi çekici ve motive edici bir ton kullan
+
+FORMAT:
+İş ilanını şu başlıklar altında oluştur:
+1. Pozisyon Tanımı (1-2 paragraf)
+2. Sorumluluklar (detaylı madde madde)
+3. Aranan Nitelikler (madde madde)
+4. Biz Kimiz? (şirket hakkında kısa bilgi)
+5. Neler Sunuyoruz? (yan haklar)
+6. Başvuru Süreci
+
+SADECE metin döndür, JSON veya başka format kullanma.`;
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 2500,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API isteği başarısız: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const jobDescription = data.content[0].text;
+
+        return {
+            success: true,
+            jobDescription
+        };
+
+    } catch (error) {
+        console.error('İş ilanı oluşturma hatası:', error);
+        return {
+            success: true,
+            jobDescription: `${positionTitle} İş İlanı\n\nAramıza katılacak ${positionTitle} arıyoruz!\n\nSorumluluklar:\n${responsibilities.map((r, i) => `${i + 1}. ${r}`).join('\n')}\n\nNitelikler:\n- İlgili alanda deneyim\n- Takım çalışmasına yatkınlık\n- Güçlü iletişim becerileri\n\nBaşvurmak için lütfen CV'nizi gönderin.`
+        };
+    }
+}
+
+/**
+ * Mülakat Sorusu Üretici - Aday CV'si ve iş ilanı analiz edilerek özel mülakat soruları oluşturur
+ * @param {Object} candidate - Aday bilgileri (CV özeti, yetenekler)
+ * @param {string} jobDescription - İş ilanı metni
+ * @returns {Promise<Object>} 5 mülakat sorusu
+ */
+export async function generateInterviewQuestions(candidate, jobDescription = '') {
+    if (!candidate || !candidate.analysis) {
+        return {
+            success: false,
+            message: 'Aday bilgileri gereklidir.'
+        };
+    }
+
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('Anthropic API key bulunamadı. Demo modu kullanılıyor.');
+        return {
+            success: true,
+            questions: [
+                `${candidate.analysis.position || 'Bu pozisyon'} için en önemli becerileriniz nelerdir?`,
+                'Kariyerinizdeki en büyük başarınızdan bahseder misiniz?',
+                'Zor bir proje yönetme deneyiminizi anlatır mısınız?',
+                'Ekip çalışmasında nasıl bir rol üstlenirsiniz?',
+                'Neden bu pozisyona başvurdunuz ve şirketimize nasıl değer katabilirsiniz?'
+            ]
+        };
+    }
+
+    try {
+        const prompt = `Sen deneyimli bir mülakat uzmanısın. Aşağıdaki aday profili ve iş ilanı için 5 spesifik, derinlemesine mülakat sorusu oluştur:
+
+ADAY PROFİLİ:
+- İsim: ${candidate.name}
+- Pozisyon: ${candidate.analysis.position || 'Belirtilmemiş'}
+- Deneyim: ${candidate.analysis.experience_years || 0} yıl
+- Yetenekler: ${candidate.analysis.skills?.join(', ') || 'Belirtilmemiş'}
+- Özet: ${candidate.analysis.summary || 'Yok'}
+
+İŞ İLANI:
+${jobDescription || 'Genel pozisyon için mülakat'}
+
+GÖREV:
+- Adayın CV'sine özel sorular sor (deneyimlerine, yeteneklerine dayalı)
+- Hem teknik hem de davranışsal sorular dahil et
+- STAR metoduna uygun sorular tercih et
+- Açık uçlu sorular kullan
+- Gerçek proje deneyimlerini öğrenmeyi hedefle
+
+ZORUNLU FORMAT:
+JSON formatında 5 soru döndür:
+{
+  "questions": [
+    "Soru 1...",
+    "Soru 2...",
+    "Soru 3...",
+    "Soru 4...",
+    "Soru 5..."
+  ]
+}
+
+SADECE JSON döndür, başka metin ekleme.`;
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 2000,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API isteği başarısız: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.content[0].text;
+
+        // JSON'u parse et
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('AI yanıtında JSON bulunamadı');
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+
+        return {
+            success: true,
+            questions: parsedData.questions || []
+        };
+
+    } catch (error) {
+        console.error('Mülakat sorusu oluşturma hatası:', error);
+        return {
+            success: true,
+            questions: [
+                `${candidate.analysis.position || 'Bu pozisyon'} için en önemli becerileriniz nelerdir?`,
+                'Kariyerinizdeki en büyük başarınızdan bahseder misiniz?',
+                'Zor bir proje yönetme deneyiminizi anlatır mısınız?',
+                'Ekip çalışmasında nasıl bir rol üstlenirsiniz?',
+                'Neden bu pozisyona başvurdunuz ve şirketimize nasıl değer katabilirsiniz?'
+            ]
+        };
+    }
+}
+
+/**
+ * E-posta Yazarı - Mülakata davet veya red e-postası oluşturur
+ * @param {Object} candidate - Aday bilgileri
+ * @param {string} emailType - 'invitation' (davet) veya 'rejection' (red)
+ * @param {Object} details - Ek detaylar (mülakat tarihi, saati vb.)
+ * @returns {Promise<Object>} E-posta metni
+ */
+export async function generateEmail(candidate, emailType, details = {}) {
+    if (!candidate || !emailType) {
+        return {
+            success: false,
+            message: 'Aday bilgileri ve e-posta tipi gereklidir.'
+        };
+    }
+
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('Anthropic API key bulunamadı. Demo modu kullanılıyor.');
+
+        if (emailType === 'invitation') {
+            return {
+                success: true,
+                subject: 'Mülakat Davetiniz - Vocaify',
+                body: `Sayın ${candidate.name},\n\n${candidate.analysis.position || 'Pozisyon'} başvurunuz için teşekkür ederiz. Sizi mülakata davet etmekten mutluluk duyuyoruz.\n\nMülakat Detayları:\nTarih: ${details.date || 'Belirtilecek'}\nSaat: ${details.time || 'Belirtilecek'}\nYer: ${details.location || 'Online/Ofis'}\n\nSaygılarımızla,\nİnsan Kaynakları Ekibi`
+            };
+        } else {
+            return {
+                success: true,
+                subject: 'Başvurunuz Hakkında - Vocaify',
+                body: `Sayın ${candidate.name},\n\n${candidate.analysis.position || 'Pozisyon'} başvurunuz için zaman ayırdığınız için teşekkür ederiz.\n\nMaalesef bu sefer başvurunuz değerlendirme sürecinde ilerletilmemiştir. CV'niz talent havuzumuzda saklanacak ve uygun pozisyonlar için sizinle iletişime geçeceğiz.\n\nBaşarılar dileriz.\n\nSaygılarımızla,\nİnsan Kaynakları Ekibi`
+            };
+        }
+    }
+
+    try {
+        const isInvitation = emailType === 'invitation';
+
+        const prompt = isInvitation
+            ? `Sen profesyonel bir İnsan Kaynakları uzmanısın. Aşağıdaki aday için kibar, profesyonel ve motive edici bir mülakat davet e-postası yaz:
+
+ADAY BİLGİLERİ:
+- İsim: ${candidate.name}
+- Pozisyon: ${candidate.analysis.position || 'Belirtilmemiş'}
+
+MÜLAKAT DETAYLARI:
+- Tarih: ${details.date || 'Belirlenecek'}
+- Saat: ${details.time || 'Belirlenecek'}
+- Yer: ${details.location || 'Online/Şirket Ofisi'}
+- Süre: ${details.duration || '45-60 dakika'}
+
+GÖREV:
+- Profesyonel ve samimi bir ton kullan
+- Adaya değer verildiğini hissettir
+- Mülakat detaylarını net belirt
+- Hazırlık için ipuçları ver
+- İletişim bilgisi ekle
+
+FORMAT:
+JSON formatında döndür:
+{
+  "subject": "E-posta konusu",
+  "body": "E-posta içeriği (paragraflar \\n\\n ile ayrılsın)"
+}
+
+SADECE JSON döndür.`
+            : `Sen empatik bir İnsan Kaynakları uzmanısın. Aşağıdaki aday için kibar, saygılı ve umut verici bir red e-postası yaz:
+
+ADAY BİLGİLERİ:
+- İsim: ${candidate.name}
+- Pozisyon: ${candidate.analysis.position || 'Belirtilmemiş'}
+
+GÖREV:
+- Son derece kibar ve saygılı bir ton kullan
+- Adayın değerini vurgula
+- Gelecekte tekrar başvurmayı teşvik et
+- Talent havuzunda kalacağını belirt
+- Pozitif bir not ile bitir
+
+FORMAT:
+JSON formatında döndür:
+{
+  "subject": "E-posta konusu",
+  "body": "E-posta içeriği (paragraflar \\n\\n ile ayrılsın)"
+}
+
+SADECE JSON döndür.`;
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 1500,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API isteği başarısız: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.content[0].text;
+
+        // JSON'u parse et
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('AI yanıtında JSON bulunamadı');
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+
+        return {
+            success: true,
+            subject: parsedData.subject || 'E-posta',
+            body: parsedData.body || ''
+        };
+
+    } catch (error) {
+        console.error('E-posta oluşturma hatası:', error);
+
+        if (emailType === 'invitation') {
+            return {
+                success: true,
+                subject: 'Mülakat Davetiniz - Vocaify',
+                body: `Sayın ${candidate.name},\n\n${candidate.analysis.position || 'Pozisyon'} başvurunuz için teşekkür ederiz. Sizi mülakata davet etmekten mutluluk duyuyoruz.\n\nMülakat Detayları:\nTarih: ${details.date || 'Belirtilecek'}\nSaat: ${details.time || 'Belirtilecek'}\nYer: ${details.location || 'Online/Ofis'}\n\nSaygılarımızla,\nİnsan Kaynakları Ekibi`
+            };
+        } else {
+            return {
+                success: true,
+                subject: 'Başvurunuz Hakkında - Vocaify',
+                body: `Sayın ${candidate.name},\n\n${candidate.analysis.position || 'Pozisyon'} başvurunuz için zaman ayırdığınız için teşekkür ederiz.\n\nMaalesef bu sefer başvurunuz değerlendirme sürecinde ilerletilmemiştir. CV'niz talent havuzumuzda saklanacak ve uygun pozisyonlar için sizinle iletişime geçeceğiz.\n\nBaşarılar dileriz.\n\nSaygılarımızla,\nİnsan Kaynakları Ekibi`
+            };
+        }
+    }
+}
