@@ -6,8 +6,6 @@ import {
     addEmployee as addEmployeeToFirestore,
     updateCandidateInFirestore,
     updateEmployeeInFirestore,
-    deleteCandidate,
-    deleteEmployee,
     moveCandidateToEmployee,
     clearAllDataInFirestore
 } from '../utils/dataManager';
