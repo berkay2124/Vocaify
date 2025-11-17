@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import MyPerformance from './MyPerformance';
 import CareerOpportunities from './CareerOpportunities';
+import AIChatbot from '../components/AIChatbot';
 
 /**
  * Employee Self-Service Portal (ESS)
@@ -597,6 +598,12 @@ function EmployeeDashboard() {
                     )}
                 </div>
             </div>
+
+            {/* AI Chatbot - AŞAMA 24 */}
+            <AIChatbot
+                employeeName={employeeRecord?.name || currentUser?.displayName}
+                employeeEmail={currentUser?.email}
+            />
         </div>
     );
 }

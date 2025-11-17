@@ -24,6 +24,7 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import PerformanceAdmin from './pages/PerformanceAdmin';
 import SurveyAdmin from './pages/SurveyAdmin';
 import InternalJobsAdmin from './pages/InternalJobsAdmin';
+import KnowledgeBase from './pages/KnowledgeBase';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
@@ -195,6 +196,8 @@ function AppContent() {
                 return <SurveyAdmin />;
             case 'internaljobs':
                 return <InternalJobsAdmin />;
+            case 'knowledgebase':
+                return <KnowledgeBase />;
             default:
                 return <Dashboard />;
         }
