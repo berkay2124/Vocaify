@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target } from 'lucide-react';
+import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import MyPerformance from './MyPerformance';
@@ -174,6 +174,7 @@ function EmployeeDashboard() {
                         { id: 'profile', label: 'Benim Profilim', icon: User },
                         { id: 'leave', label: 'İzin Talebi', icon: Calendar },
                         { id: 'performance', label: 'Performansım', icon: Target },
+                        { id: 'surveys', label: 'Anketlerim', icon: MessageSquare },
                         { id: 'payroll', label: 'Maaş Bordrosu', icon: DollarSign },
                         { id: 'tasks', label: 'Görevlerim', icon: CheckCircle }
                     ].map((tab) => {
@@ -398,6 +399,140 @@ function EmployeeDashboard() {
                     {/* Performans Bölümü */}
                     {activeSection === 'performance' && (
                         <MyPerformance />
+                    )}
+
+                    {/* Anketlerim Bölümü - AŞAMA 22 */}
+                    {activeSection === 'surveys' && (
+                        <div className="glass p-6 rounded-2xl" style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                                <MessageSquare className="w-6 h-6 text-purple-400" />
+                                Bağlılık Anketlerim
+                            </h2>
+
+                            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+                                <p className="text-blue-300 text-sm">
+                                    <strong>🔒 Gizlilik:</strong> Tüm yanıtlarınız anonimdir. Bireysel cevaplarınız kimsenin göremez,
+                                    sadece toplu istatistikler İK tarafından değerlendirilir.
+                                </p>
+                            </div>
+
+                            {/* Demo Anket - Gerçekte backend'den gelecek */}
+                            {(() => {
+                                const [surveyAnswers, setSurveyAnswers] = useState({});
+                                const [completedSurveys, setCompletedSurveys] = useState([]);
+
+                                const demoSurvey = {
+                                    id: 1,
+                                    name: 'Haftalık Mutluluk Anketi',
+                                    description: 'Genel iş memnuniyetinizi ölçmek için haftalık anket',
+                                    questions: [
+                                        { id: 1, type: 'rating', question: 'Bu hafta işinizden ne kadar mutlusunuz?', required: true },
+                                        { id: 2, type: 'rating', question: 'Takım arkadaşlarınızla iletişiminizi nasıl değerlendirirsiniz?', required: true },
+                                        { id: 3, type: 'text', question: 'Bu hafta sizi en çok ne motive etti?', required: false }
+                                    ]
+                                };
+
+                                const handleRatingClick = (questionId, rating) => {
+                                    setSurveyAnswers({
+                                        ...surveyAnswers,
+                                        [questionId]: rating
+                                    });
+                                };
+
+                                const handleTextChange = (questionId, text) => {
+                                    setSurveyAnswers({
+                                        ...surveyAnswers,
+                                        [questionId]: text
+                                    });
+                                };
+
+                                const handleSubmitSurvey = () => {
+                                    // Zorunlu soruları kontrol et
+                                    const requiredQuestions = demoSurvey.questions.filter(q => q.required);
+                                    const allAnswered = requiredQuestions.every(q => surveyAnswers[q.id]);
+
+                                    if (!allAnswered) {
+                                        alert('Lütfen tüm zorunlu soruları cevaplayın.');
+                                        return;
+                                    }
+
+                                    // Anketi tamamlandı olarak işaretle
+                                    setCompletedSurveys([...completedSurveys, demoSurvey.id]);
+                                    setSurveyAnswers({});
+                                    alert('Anket yanıtlarınız başarıyla gönderildi! Teşekkür ederiz.');
+                                };
+
+                                const isSurveyCompleted = completedSurveys.includes(demoSurvey.id);
+
+                                return (
+                                    <div>
+                                        {isSurveyCompleted ? (
+                                            <div className="text-center py-12">
+                                                <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                                                <h3 className="text-xl font-bold text-white mb-2">Tüm anketleri tamamladınız!</h3>
+                                                <p className="text-gray-400">Yeni anketler eklendiğinde burada görünecektir.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-slate-800/50 p-6 rounded-lg border border-purple-500/20">
+                                                <h3 className="text-xl font-bold text-white mb-2">{demoSurvey.name}</h3>
+                                                <p className="text-gray-400 text-sm mb-6">{demoSurvey.description}</p>
+
+                                                <div className="space-y-6">
+                                                    {demoSurvey.questions.map((q, idx) => (
+                                                        <div key={q.id} className="bg-slate-900/50 p-4 rounded-lg">
+                                                            <div className="flex items-start gap-2 mb-3">
+                                                                <span className="text-purple-400 font-bold">{idx + 1}.</span>
+                                                                <div className="flex-1">
+                                                                    <p className="text-white font-medium">
+                                                                        {q.question}
+                                                                        {q.required && <span className="text-red-400 ml-1">*</span>}
+                                                                    </p>
+
+                                                                    {q.type === 'rating' ? (
+                                                                        <div className="flex gap-2 mt-3">
+                                                                            {[1, 2, 3, 4, 5].map((rating) => (
+                                                                                <button
+                                                                                    key={rating}
+                                                                                    onClick={() => handleRatingClick(q.id, rating)}
+                                                                                    className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+                                                                                        surveyAnswers[q.id] === rating
+                                                                                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                                                                                            : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
+                                                                                    }`}
+                                                                                >
+                                                                                    <Star className={`w-6 h-6 mx-auto ${surveyAnswers[q.id] === rating ? 'fill-white' : ''}`} />
+                                                                                    <span className="text-sm mt-1">{rating}</span>
+                                                                                </button>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <textarea
+                                                                            value={surveyAnswers[q.id] || ''}
+                                                                            onChange={(e) => handleTextChange(q.id, e.target.value)}
+                                                                            rows="3"
+                                                                            placeholder="Yanıtınızı buraya yazın..."
+                                                                            className="w-full mt-3 px-4 py-3 bg-slate-800 text-white rounded-lg border border-purple-500/30 focus:border-purple-500 transition-all resize-none"
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <button
+                                                    onClick={handleSubmitSurvey}
+                                                    className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <CheckCircle className="w-5 h-5" />
+                                                    Anketi Gönder
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })()}
+                        </div>
                     )}
 
                     {/* Görevlerim Bölümü */}

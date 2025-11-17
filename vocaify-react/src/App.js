@@ -22,6 +22,7 @@ import Onboarding from './pages/Onboarding';
 import Integrations from './pages/Integrations';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import PerformanceAdmin from './pages/PerformanceAdmin';
+import SurveyAdmin from './pages/SurveyAdmin';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
@@ -189,6 +190,8 @@ function AppContent() {
                 return <Integrations />;
             case 'performance':
                 return <PerformanceAdmin />;
+            case 'surveys':
+                return <SurveyAdmin />;
             default:
                 return <Dashboard />;
         }
