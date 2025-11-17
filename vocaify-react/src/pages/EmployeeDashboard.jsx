@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star, Briefcase } from 'lucide-react';
+import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star, Briefcase, Heart, Award } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import MyPerformance from './MyPerformance';
 import CareerOpportunities from './CareerOpportunities';
+import Kudos from './Kudos';
 import AIChatbot from '../components/AIChatbot';
 
 /**
@@ -177,6 +178,7 @@ function EmployeeDashboard() {
                         { id: 'leave', label: 'İzin Talebi', icon: Calendar },
                         { id: 'performance', label: 'Performansım', icon: Target },
                         { id: 'surveys', label: 'Anketlerim', icon: MessageSquare },
+                        { id: 'kudos', label: 'Kudos (Takdir)', icon: Heart },
                         { id: 'career', label: 'Kariyer Fırsatları', icon: Briefcase },
                         { id: 'payroll', label: 'Maaş Bordrosu', icon: DollarSign },
                         { id: 'tasks', label: 'Görevlerim', icon: CheckCircle }
@@ -264,6 +266,63 @@ function EmployeeDashboard() {
                                     />
                                 </div>
                             </div>
+
+                            {/* Badges Display - AŞAMA 26 */}
+                            {employeeRecord?.badges && employeeRecord.badges.length > 0 && (
+                                <div className="mt-6 pt-6 border-t border-purple-500/20">
+                                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                        <Award className="w-5 h-5 text-yellow-400" />
+                                        Kazandığım Rozetler
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {employeeRecord.badges.map((badge, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`bg-gradient-to-br ${badge.color || 'from-purple-500 to-pink-500'} rounded-xl p-4 text-center`}
+                                            >
+                                                <div className="text-3xl mb-2">{badge.icon || '🏅'}</div>
+                                                <div className="text-white font-bold text-sm">{badge.name}</div>
+                                                <div className="text-white/70 text-xs mt-1">
+                                                    {new Date(badge.earnedDate).toLocaleDateString('tr-TR')}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Recent Kudos Display - AŞAMA 26 */}
+                            {employeeRecord?.kudosReceived && employeeRecord.kudosReceived.length > 0 && (
+                                <div className="mt-6 pt-6 border-t border-purple-500/20">
+                                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                        <Heart className="w-5 h-5 text-pink-400" />
+                                        Son Aldığım Kudoslar ({employeeRecord.kudosReceived.length})
+                                    </h3>
+                                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                                        {employeeRecord.kudosReceived.slice(0, 5).map((kudos, idx) => (
+                                            <div key={idx} className="bg-slate-800/50 rounded-lg p-3 border border-purple-500/20">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-xl">{kudos.categoryIcon || '👏'}</span>
+                                                    <span className="text-purple-400 font-medium text-sm">{kudos.categoryLabel}</span>
+                                                </div>
+                                                <div className="text-white text-sm mb-1">
+                                                    <strong>{kudos.senderName}</strong> seni takdir etti
+                                                </div>
+                                                <p className="text-gray-400 text-xs">{kudos.message}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {employeeRecord.kudosReceived.length > 5 && (
+                                        <button
+                                            onClick={() => setActiveSection('kudos')}
+                                            className="mt-3 text-purple-400 hover:text-purple-300 text-sm font-medium"
+                                        >
+                                            Tümünü Gör ({employeeRecord.kudosReceived.length} kudos) →
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+
                             <button
                                 onClick={handleProfileUpdate}
                                 className="mt-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
@@ -536,6 +595,11 @@ function EmployeeDashboard() {
                                 );
                             })()}
                         </div>
+                    )}
+
+                    {/* Kudos Bölümü - AŞAMA 26 */}
+                    {activeSection === 'kudos' && (
+                        <Kudos />
                     )}
 
                     {/* Kariyer Fırsatları Bölümü - AŞAMA 23 */}

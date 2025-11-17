@@ -26,6 +26,8 @@ import SurveyAdmin from './pages/SurveyAdmin';
 import InternalJobsAdmin from './pages/InternalJobsAdmin';
 import KnowledgeBase from './pages/KnowledgeBase';
 import ReportBuilder from './pages/ReportBuilder';
+import GamificationSettings from './pages/GamificationSettings';
+import KudosFeed from './pages/KudosFeed';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
@@ -201,6 +203,10 @@ function AppContent() {
                 return <KnowledgeBase />;
             case 'reports':
                 return <ReportBuilder />;
+            case 'gamification':
+                return <GamificationSettings />;
+            case 'kudosfeed':
+                return <KudosFeed />;
             default:
                 return <Dashboard />;
         }
