@@ -1011,3 +1011,214 @@ function generateSalaryBenchmarkDemo(positionTitle, location = 'Türkiye') {
         recommendation: 'Bu aralık, sektör ortalamasına dayalı bir tahmindir. Şirket ölçeği ve adayın deneyimine göre ayarlayabilirsiniz.'
     };
 }
+
+/**
+ * AŞAMA 30: AI Kariyer Yolu Planlama
+ * Çalışanın mevcut durumunu analiz eder ve hedef role ulaşmak için gelişim yolu önerir
+ * @param {Object} employee - Çalışan bilgileri (beceriler, performans, rol)
+ * @param {string} targetRole - Hedef rol (örn: "Kıdemli Yönetici", "Senior Developer")
+ * @returns {Promise<Object>} Kariyer yolu önerileri
+ */
+export async function generateCareerPath(employee, targetRole) {
+    if (!employee || !targetRole || targetRole.trim().length === 0) {
+        return {
+            success: false,
+            message: 'Çalışan bilgileri ve hedef rol gereklidir.'
+        };
+    }
+
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('Anthropic API key bulunamadı. Demo modu kullanılıyor.');
+        return generateCareerPathDemo(employee, targetRole);
+    }
+
+    try {
+        const prompt = `Sen bir Kariyer Danışmanı ve İnsan Kaynakları uzmanısın. Aşağıdaki çalışanın mevcut durumunu analiz et ve hedef role ulaşması için gelişim yolu öner:
+
+MEVCUT DURUM:
+- İsim: ${employee.name}
+- Mevcut Rol: ${employee.analysis?.position || employee.position || 'Belirtilmemiş'}
+- Deneyim: ${employee.analysis?.experience_years || 0} yıl
+- Beceriler: ${employee.analysis?.skills?.join(', ') || 'Belirtilmemiş'}
+- Performans Skoru: ${employee.totalKpiScore || 0}/100
+- Performans Seviyesi: ${employee.performanceLevel || 'Belirtilmemiş'}
+- Kazanılan Rozetler: ${employee.badges?.length || 0} rozet
+
+HEDEF ROL:
+${targetRole}
+
+GÖREV:
+1. Mevcut beceriler ile hedef rol arasındaki boşlukları (skill gap) belirle
+2. 3 maddelik, aksiyona dönüştürülebilir gelişim yolu öner
+3. Her madde için: Ne yapılmalı, Neden önemli, Tahmini süre
+
+ZORUNLU FORMAT:
+JSON formatında döndür:
+{
+  "analysis": "Mevcut durum analizi (2-3 cümle)",
+  "skillGaps": [
+    "Eksik beceri 1",
+    "Eksik beceri 2",
+    "Eksik beceri 3"
+  ],
+  "developmentPath": [
+    {
+      "step": 1,
+      "title": "İlk Adım Başlığı",
+      "action": "Yapılması gereken somut aksiyon",
+      "reason": "Neden bu önemli?",
+      "timeline": "Tahmini süre (örn: 3-6 ay)",
+      "priority": "Yüksek/Orta/Düşük"
+    },
+    {
+      "step": 2,
+      "title": "İkinci Adım Başlığı",
+      "action": "...",
+      "reason": "...",
+      "timeline": "...",
+      "priority": "..."
+    },
+    {
+      "step": 3,
+      "title": "Üçüncü Adım Başlığı",
+      "action": "...",
+      "reason": "...",
+      "timeline": "...",
+      "priority": "..."
+    }
+  ],
+  "estimatedTimeToGoal": "Toplam tahmini süre (örn: 12-18 ay)",
+  "successProbability": "Yüksek/Orta/Düşük",
+  "recommendation": "Genel tavsiye (1-2 cümle)"
+}
+
+ÖNEMLI:
+- Gerçekçi ve somut öneriler ver
+- Aksiyonlar ölçülebilir olmalı
+- Pozitif ve motive edici bir ton kullan
+- SADECE JSON döndür, başka metin ekleme`;
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 2500,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API isteği başarısız: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.content[0].text;
+
+        // JSON'u parse et
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            console.warn('AI yanıtında JSON bulunamadı, demo modu kullanılıyor.');
+            return generateCareerPathDemo(employee, targetRole);
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+
+        return {
+            success: true,
+            analysis: parsedData.analysis || '',
+            skillGaps: parsedData.skillGaps || [],
+            developmentPath: parsedData.developmentPath || [],
+            estimatedTimeToGoal: parsedData.estimatedTimeToGoal || '',
+            successProbability: parsedData.successProbability || '',
+            recommendation: parsedData.recommendation || ''
+        };
+
+    } catch (error) {
+        console.error('Kariyer yolu oluşturma hatası:', error);
+        console.warn('AI kariyer analizi başarısız, demo modu kullanılıyor.');
+        return generateCareerPathDemo(employee, targetRole);
+    }
+}
+
+/**
+ * Demo/Fallback modu - Basit kural tabanlı kariyer yolu
+ * @param {Object} employee - Çalışan bilgileri
+ * @param {string} targetRole - Hedef rol
+ * @returns {Object} Demo kariyer yolu
+ */
+function generateCareerPathDemo(employee, targetRole) {
+    const currentRole = employee.analysis?.position || employee.position || 'Mevcut Rol';
+    const currentSkills = employee.analysis?.skills || [];
+    const performanceScore = employee.totalKpiScore || 0;
+
+    // Beceri boşlukları tahmin et
+    const skillGaps = [];
+    if (targetRole.toLowerCase().includes('yönetici') || targetRole.toLowerCase().includes('manager')) {
+        skillGaps.push('Liderlik ve Ekip Yönetimi');
+        skillGaps.push('Stratejik Planlama');
+        skillGaps.push('Bütçe ve Kaynak Yönetimi');
+    } else if (targetRole.toLowerCase().includes('senior') || targetRole.toLowerCase().includes('kıdemli')) {
+        skillGaps.push('İleri Düzey Teknik Beceriler');
+        skillGaps.push('Mentorluk ve Koçluk');
+        skillGaps.push('Proje Yönetimi');
+    } else {
+        skillGaps.push('Alan Uzmanlığı');
+        skillGaps.push('İletişim Becerileri');
+        skillGaps.push('Problem Çözme');
+    }
+
+    // Performansa göre başarı olasılığı
+    let successProbability = 'Orta';
+    if (performanceScore >= 80) {
+        successProbability = 'Yüksek';
+    } else if (performanceScore < 60) {
+        successProbability = 'Düşük - Performansı artırmalı';
+    }
+
+    return {
+        success: true,
+        analysis: `${currentRole} pozisyonundan ${targetRole} pozisyonuna geçiş hedefliyorsunuz. Mevcut performans skorunuz ${performanceScore}/100. ${currentSkills.length > 0 ? `${currentSkills.length} farklı beceriye sahipsiniz.` : 'Beceri portföyünüzü güçlendirmelisiniz.'}`,
+        skillGaps: skillGaps,
+        developmentPath: [
+            {
+                step: 1,
+                title: skillGaps[0] ? `${skillGaps[0]} Geliştirme` : 'Temel Beceri Geliştirme',
+                action: `${skillGaps[0] || 'İlgili beceri'} alanında sertifika programlarına katılın veya online eğitimler alın. İç eğitim programlarından yararlanın.`,
+                reason: 'Hedef pozisyon için kritik bir yetkinlik eksikliği kapatılacak.',
+                timeline: '3-6 ay',
+                priority: 'Yüksek'
+            },
+            {
+                step: 2,
+                title: 'Pratik Deneyim Kazanma',
+                action: 'Hedef pozisyonla ilgili yan projelerde görev alın. Cross-functional takımlarda yer edinin. Mentorluk programlarına katılın.',
+                reason: 'Teorik bilgiyi pratiğe dönüştürmek ve network oluşturmak önemli.',
+                timeline: '6-12 ay',
+                priority: 'Yüksek'
+            },
+            {
+                step: 3,
+                title: 'Performans ve Görünürlük Artırma',
+                action: 'Yüksek öncelikli projelerde liderlik rolü üstlenin. Başarılarınızı yöneticinizle paylaşın. İç iletişimde aktif rol alın.',
+                reason: 'Terfi kararları için yönetim tarafından fark edilmek kritiktir.',
+                timeline: '6-12 ay',
+                priority: 'Orta'
+            }
+        ],
+        estimatedTimeToGoal: '12-18 ay',
+        successProbability: successProbability,
+        recommendation: performanceScore >= 70
+            ? 'Performansınız iyidir. Odaklanarak bu adımları takip ederseniz hedefinize ulaşabilirsiniz.'
+            : 'Öncelikle mevcut pozisyonunuzdaki performansınızı artırın, sonra gelişim adımlarını uygulayın.'
+    };
+}

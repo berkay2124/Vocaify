@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star, Briefcase, Heart, Award } from 'lucide-react';
+import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star, Briefcase, Heart, Award, TrendingUp, Loader } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import MyPerformance from './MyPerformance';
 import CareerOpportunities from './CareerOpportunities';
 import Kudos from './Kudos';
 import AIChatbot from '../components/AIChatbot';
+import { generateCareerPath } from '../utils/aiAnalyzer';
 
 /**
  * Employee Self-Service Portal (ESS)
@@ -41,6 +42,11 @@ function EmployeeDashboard() {
     const [leaveRequests, setLeaveRequests] = useState(employeeRecord?.leaveRequests || []);
     const [requestSubmitted, setRequestSubmitted] = useState(false);
 
+    // AŞAMA 30: Kariyer Yolu state
+    const [targetRole, setTargetRole] = useState('');
+    const [careerPath, setCareerPath] = useState(null);
+    const [loadingCareerPath, setLoadingCareerPath] = useState(false);
+
     // Profil güncelleme
     const handleProfileUpdate = () => {
         if (employeeRecord) {
@@ -59,6 +65,37 @@ function EmployeeDashboard() {
             });
             setCandidates(updatedCandidates);
             alert('Profil bilgileriniz başarıyla güncellendi!');
+        }
+    };
+
+    // AŞAMA 30: Kariyer yolu oluştur
+    const handleGenerateCareerPath = async () => {
+        if (!targetRole.trim()) {
+            alert('Lütfen hedef rolünüzü girin.');
+            return;
+        }
+
+        if (!employeeRecord) {
+            alert('Çalışan kaydınız bulunamadı.');
+            return;
+        }
+
+        setLoadingCareerPath(true);
+        try {
+            console.log('🎯 Kariyer yolu oluşturuluyor...');
+            const result = await generateCareerPath(employeeRecord, targetRole);
+
+            if (result.success) {
+                setCareerPath(result);
+                console.log('✅ Kariyer yolu oluşturuldu');
+            } else {
+                alert(result.message || 'Kariyer yolu oluşturulamadı.');
+            }
+        } catch (error) {
+            console.error('Kariyer yolu hatası:', error);
+            alert('Bir hata oluştu.');
+        } finally {
+            setLoadingCareerPath(false);
         }
     };
 
@@ -179,6 +216,7 @@ function EmployeeDashboard() {
                         { id: 'performance', label: 'Performansım', icon: Target },
                         { id: 'surveys', label: 'Anketlerim', icon: MessageSquare },
                         { id: 'kudos', label: 'Kudos (Takdir)', icon: Heart },
+                        { id: 'mycareer', label: 'Kariyerim', icon: TrendingUp },
                         { id: 'career', label: 'Kariyer Fırsatları', icon: Briefcase },
                         { id: 'payroll', label: 'Maaş Bordrosu', icon: DollarSign },
                         { id: 'tasks', label: 'Görevlerim', icon: CheckCircle }
@@ -600,6 +638,205 @@ function EmployeeDashboard() {
                     {/* Kudos Bölümü - AŞAMA 26 */}
                     {activeSection === 'kudos' && (
                         <Kudos />
+                    )}
+
+                    {/* Kariyerim Bölümü - AŞAMA 30 */}
+                    {activeSection === 'mycareer' && (
+                        <div className="glass p-6 rounded-2xl" style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                <TrendingUp className="w-7 h-7 text-green-400" />
+                                Kariyerim - AI Gelişim Yolu
+                            </h2>
+
+                            {/* Mevcut Durum Kartı */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 p-6 rounded-xl border border-blue-500/30">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <User className="w-6 h-6 text-blue-400" />
+                                        <h3 className="text-lg font-bold text-white">Mevcut Rolüm</h3>
+                                    </div>
+                                    <p className="text-2xl font-bold text-blue-300">
+                                        {employeeRecord?.analysis?.position || employeeRecord?.position || 'Belirtilmemiş'}
+                                    </p>
+                                    <p className="text-gray-400 text-sm mt-2">
+                                        {employeeRecord?.analysis?.experience_years || 0} yıl deneyim
+                                    </p>
+                                </div>
+
+                                <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 p-6 rounded-xl border border-purple-500/30">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <Target className="w-6 h-6 text-purple-400" />
+                                        <h3 className="text-lg font-bold text-white">Performansım</h3>
+                                    </div>
+                                    <p className="text-2xl font-bold text-purple-300">
+                                        {employeeRecord?.totalKpiScore || 0}/100
+                                    </p>
+                                    <p className="text-gray-400 text-sm mt-2">
+                                        {employeeRecord?.performanceLevel || 'Henüz değerlendirilmedi'}
+                                    </p>
+                                </div>
+
+                                <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 p-6 rounded-xl border border-green-500/30">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <Star className="w-6 h-6 text-green-400" />
+                                        <h3 className="text-lg font-bold text-white">Becerilerim</h3>
+                                    </div>
+                                    <p className="text-2xl font-bold text-green-300">
+                                        {employeeRecord?.analysis?.skills?.length || 0} beceri
+                                    </p>
+                                    <p className="text-gray-400 text-sm mt-2">
+                                        {employeeRecord?.badges?.length || 0} rozet kazandım
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Beceriler Listesi */}
+                            {employeeRecord?.analysis?.skills && employeeRecord.analysis.skills.length > 0 && (
+                                <div className="bg-slate-800/50 p-5 rounded-xl border border-purple-500/20 mb-6">
+                                    <h3 className="text-lg font-bold text-white mb-3">📚 Mevcut Becerilerim</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {employeeRecord.analysis.skills.map((skill, idx) => (
+                                            <span
+                                                key={idx}
+                                                className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg text-sm font-medium border border-purple-500/30"
+                                            >
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Hedef Girişi */}
+                            <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-6 mb-6">
+                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <TrendingUp className="w-6 h-6 text-green-400" />
+                                    Kariyer Hedefiniz Nedir?
+                                </h3>
+                                <p className="text-gray-300 text-sm mb-4">
+                                    Ulaşmak istediğiniz rolü yazın ve AI size özel bir gelişim yolu oluştursun.
+                                </p>
+                                <div className="flex gap-3">
+                                    <input
+                                        type="text"
+                                        value={targetRole}
+                                        onChange={(e) => setTargetRole(e.target.value)}
+                                        placeholder="Örn: Kıdemli Yönetici, Senior Developer, Takım Lideri"
+                                        className="flex-1 px-4 py-3 bg-slate-700/50 border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500"
+                                        onKeyPress={(e) => e.key === 'Enter' && handleGenerateCareerPath()}
+                                    />
+                                    <button
+                                        onClick={handleGenerateCareerPath}
+                                        disabled={loadingCareerPath}
+                                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {loadingCareerPath ? (
+                                            <>
+                                                <Loader className="w-5 h-5 animate-spin" />
+                                                Oluşturuluyor...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <TrendingUp className="w-5 h-5" />
+                                                Gelişim Yolu Oluştur
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* AI Kariyer Yolu Sonuçları */}
+                            {careerPath && (
+                                <div className="space-y-6">
+                                    {/* Analiz */}
+                                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-5">
+                                        <h3 className="text-lg font-bold text-blue-300 mb-3">📊 Durum Analizi</h3>
+                                        <p className="text-gray-300">{careerPath.analysis}</p>
+                                    </div>
+
+                                    {/* Beceri Boşlukları */}
+                                    {careerPath.skillGaps && careerPath.skillGaps.length > 0 && (
+                                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-5">
+                                            <h3 className="text-lg font-bold text-yellow-300 mb-3">⚠️ Geliştirmeniz Gereken Alanlar</h3>
+                                            <ul className="space-y-2">
+                                                {careerPath.skillGaps.map((gap, idx) => (
+                                                    <li key={idx} className="flex items-start gap-2 text-gray-300">
+                                                        <Circle className="w-2 h-2 text-yellow-400 mt-2 flex-shrink-0" />
+                                                        <span>{gap}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {/* Gelişim Yolu Adımları */}
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                                            <TrendingUp className="w-7 h-7 text-green-400" />
+                                            3 Adımda Gelişim Yolunuz
+                                        </h3>
+                                        <div className="space-y-4">
+                                            {careerPath.developmentPath && careerPath.developmentPath.map((step, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-6 hover:border-purple-500/50 transition-all"
+                                                >
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-xl">
+                                                            {step.step}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <h4 className="text-xl font-bold text-white">{step.title}</h4>
+                                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                                    step.priority === 'Yüksek'
+                                                                        ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                                                        : step.priority === 'Orta'
+                                                                        ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                                                                        : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                                                }`}>
+                                                                    {step.priority} Öncelik
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-gray-300 mb-3">
+                                                                <strong className="text-purple-300">Ne yapmalısınız:</strong> {step.action}
+                                                            </p>
+                                                            <p className="text-gray-400 text-sm mb-2">
+                                                                <strong className="text-blue-300">Neden önemli:</strong> {step.reason}
+                                                            </p>
+                                                            <div className="flex items-center gap-2 text-sm">
+                                                                <Clock className="w-4 h-4 text-green-400" />
+                                                                <span className="text-green-300 font-medium">{step.timeline}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Özet Bilgiler */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                                            <p className="text-gray-400 text-sm mb-1">Tahmini Toplam Süre</p>
+                                            <p className="text-2xl font-bold text-green-300">{careerPath.estimatedTimeToGoal}</p>
+                                        </div>
+                                        <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+                                            <p className="text-gray-400 text-sm mb-1">Başarı Olasılığı</p>
+                                            <p className="text-2xl font-bold text-purple-300">{careerPath.successProbability}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Tavsiye */}
+                                    {careerPath.recommendation && (
+                                        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-5">
+                                            <h3 className="text-lg font-bold text-purple-300 mb-3">💡 AI Tavsiyesi</h3>
+                                            <p className="text-gray-300">{careerPath.recommendation}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     )}
 
                     {/* Kariyer Fırsatları Bölümü - AŞAMA 23 */}
