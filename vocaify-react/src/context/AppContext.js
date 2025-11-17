@@ -30,6 +30,7 @@ export function AppProvider({ children }) {
     const [candidates, setCandidates] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [expenses, setExpenses] = useState([]); // AŞAMA 33: Gider talepleri
+    const [exitInterviews, setExitInterviews] = useState([]); // AŞAMA 35: Exit Interview verileri
     const [loading, setLoading] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -268,12 +269,48 @@ export function AppProvider({ children }) {
         console.log('❌ Gider talebi reddedildi:', expenseId);
     };
 
+    /**
+     * AŞAMA 35: Exit Interview Functions
+     */
+
+    // Yeni exit interview kaydı oluştur
+    const addExitInterview = (exitData) => {
+        const newExitInterview = {
+            id: 'EXIT-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+            employeeId: exitData.employeeId,
+            employeeName: exitData.employeeName,
+            employeePosition: exitData.employeePosition,
+            exitDate: exitData.exitDate || new Date().toISOString(),
+            exitReason: exitData.exitReason,
+            managerRating: exitData.managerRating,
+            companyRating: exitData.companyRating,
+            wouldRecommend: exitData.wouldRecommend,
+            feedback: exitData.feedback,
+            improvementSuggestions: exitData.improvementSuggestions,
+            conductedBy: currentUser?.name || 'HR Admin',
+            conductedDate: new Date().toISOString()
+        };
+
+        setExitInterviews(prev => [newExitInterview, ...prev]);
+        console.log('✅ Exit interview kaydedildi:', newExitInterview.id);
+        return newExitInterview;
+    };
+
+    // Exit interview güncelle
+    const updateExitInterview = (exitId, updates) => {
+        setExitInterviews(prev => prev.map(exit =>
+            exit.id === exitId ? { ...exit, ...updates } : exit
+        ));
+        console.log('✅ Exit interview güncellendi:', exitId);
+    };
+
     const value = {
         // State
         activeTab,
         candidates,
         employees,
         expenses,
+        exitInterviews,
         loading,
         dataLoading,
         searchQuery,

@@ -1640,3 +1640,236 @@ function analyzeStrategicScenarioDemo(scenarioType, params, currentData) {
 
     return result;
 }
+
+/**
+ * AŞAMA 35: Exit Interview Analysis
+ * Tüm exit interview verilerini toplu olarak analiz eder ve stratejik içgörüler sunar
+ * @param {Array} exitInterviews - Exit interview verileri
+ * @returns {Promise<Object>} Analiz sonuçları
+ */
+export async function analyzeExitInterviews(exitInterviews) {
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('⚠️ Anthropic API key bulunamadı. Demo modu kullanılıyor.');
+        return analyzeExitInterviewsDemo(exitInterviews);
+    }
+
+    if (!exitInterviews || exitInterviews.length === 0) {
+        return {
+            success: false,
+            error: 'Analiz için exit interview verisi bulunamadı.'
+        };
+    }
+
+    try {
+        const prompt = buildExitInterviewPrompt(exitInterviews);
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 4000,
+                messages: [{
+                    role: 'user',
+                    content: prompt
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Anthropic API hatası: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.content[0].text;
+
+        console.log('🤖 Claude Exit Interview Analysis yanıtı:', aiResponse);
+
+        // JSON parse et
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('Claude yanıtı JSON formatında değil');
+        }
+
+        const analysis = JSON.parse(jsonMatch[0]);
+
+        return {
+            success: true,
+            analysis: analysis,
+            totalInterviews: exitInterviews.length,
+            analyzedAt: new Date().toISOString()
+        };
+
+    } catch (error) {
+        console.error('❌ Exit Interview analiz hatası:', error);
+        console.warn('⚠️ Demo moda geri dönülüyor...');
+        return analyzeExitInterviewsDemo(exitInterviews);
+    }
+}
+
+/**
+ * Exit interview analizi için Claude promptu oluşturur
+ */
+function buildExitInterviewPrompt(exitInterviews) {
+    const interviewData = exitInterviews.map((interview, index) => {
+        return `
+Exit Interview #${index + 1}:
+- Çalışan: ${interview.employeeName} (${interview.employeePosition})
+- Ayrılma Tarihi: ${new Date(interview.exitDate).toLocaleDateString('tr-TR')}
+- Ayrılma Nedeni: ${interview.exitReason}
+- Yönetici Puanı: ${interview.managerRating}/5
+- Şirket Puanı: ${interview.companyRating}/5
+- Şirketi Tavsiye Eder mi: ${interview.wouldRecommend ? 'Evet' : 'Hayır'}
+- Geri Bildirim: ${interview.feedback}
+- İyileştirme Önerileri: ${interview.improvementSuggestions}
+        `.trim();
+    }).join('\n\n---\n\n');
+
+    return `Aşağıdaki ${exitInterviews.length} adet çalışan çıkış görüşmesini (exit interview) toplu olarak analiz et ve stratejik içgörüler sun.
+
+${interviewData}
+
+Lütfen şu formatta JSON yanıt ver:
+
+{
+  "strategicSummary": "Ayrılmaların ana nedenlerini ve genel trendleri özetleyen 2-3 cümle (örn: 'Ayrılmaların %40'ı yetersiz maaş ve kötü yönetici konularında yoğunlaşıyor.')",
+  "topReasons": [
+    { "reason": "Yetersiz Maaş", "percentage": 40, "count": 8 },
+    { "reason": "Kötü Yönetici", "percentage": 30, "count": 6 }
+  ],
+  "averageManagerRating": 3.2,
+  "averageCompanyRating": 3.5,
+  "recommendationRate": 45,
+  "departmentInsights": [
+    { "department": "Mühendislik", "turnoverRisk": "Yüksek", "mainIssue": "Maaş rekabeti düşük" }
+  ],
+  "actionableRecommendations": [
+    "Yönetici Eğitim Programı Başlatın (Öncelik: Yüksek)",
+    "Maaş Rekabet Analizi Yapın (Öncelik: Yüksek)",
+    "Kariyer Gelişim Programları Güçlendirin (Öncelik: Orta)"
+  ],
+  "riskLevel": "Yüksek",
+  "keyQuotes": [
+    "Maaşım piyasanın %20 altındaydı.",
+    "Yöneticim geri bildirimlerime asla kulak vermedi."
+  ]
+}
+
+SADECE JSON formatında yanıt ver, başka metin ekleme.`;
+}
+
+/**
+ * Demo mode: Exit interview analizi (rule-based)
+ */
+function analyzeExitInterviewsDemo(exitInterviews) {
+    console.log('🎬 Exit Interview Demo Modu - Rule-based analiz yapılıyor...');
+
+    if (!exitInterviews || exitInterviews.length === 0) {
+        return {
+            success: false,
+            error: 'Analiz için exit interview verisi bulunamadı.'
+        };
+    }
+
+    // Ayrılma nedenlerini say
+    const reasonCounts = {};
+    exitInterviews.forEach(interview => {
+        const reason = interview.exitReason || 'Belirtilmemiş';
+        reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
+    });
+
+    // Top reasons oluştur
+    const topReasons = Object.entries(reasonCounts)
+        .map(([reason, count]) => ({
+            reason,
+            count,
+            percentage: Math.round((count / exitInterviews.length) * 100)
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+    // Ortalama puanlar
+    const avgManagerRating = exitInterviews.reduce((sum, i) => sum + (i.managerRating || 0), 0) / exitInterviews.length;
+    const avgCompanyRating = exitInterviews.reduce((sum, i) => sum + (i.companyRating || 0), 0) / exitInterviews.length;
+    const recommendCount = exitInterviews.filter(i => i.wouldRecommend).length;
+    const recommendationRate = Math.round((recommendCount / exitInterviews.length) * 100);
+
+    // Departman analizi (employee position'dan tahmin)
+    const departmentMap = {};
+    exitInterviews.forEach(interview => {
+        const dept = interview.employeePosition?.includes('Müh') ? 'Mühendislik' :
+                     interview.employeePosition?.includes('Satış') ? 'Satış' :
+                     interview.employeePosition?.includes('İK') ? 'İnsan Kaynakları' :
+                     interview.employeePosition?.includes('Finans') ? 'Finans' : 'Diğer';
+        departmentMap[dept] = (departmentMap[dept] || 0) + 1;
+    });
+
+    const departmentInsights = Object.entries(departmentMap)
+        .map(([dept, count]) => ({
+            department: dept,
+            turnoverRisk: count >= 3 ? 'Yüksek' : count >= 2 ? 'Orta' : 'Düşük',
+            mainIssue: topReasons[0]?.reason || 'Belirtilmemiş'
+        }))
+        .filter(d => d.turnoverRisk !== 'Düşük');
+
+    // Risk seviyesi
+    const riskLevel = avgManagerRating < 3 || avgCompanyRating < 3 ? 'Yüksek' :
+                      avgManagerRating < 3.5 || avgCompanyRating < 3.5 ? 'Orta' : 'Düşük';
+
+    // Stratejik özet oluştur
+    const topReason1 = topReasons[0]?.reason || 'Bilinmeyen';
+    const topReason2 = topReasons[1]?.reason || '';
+    const strategicSummary = topReason2
+        ? `Ayrılmaların %${topReasons[0].percentage}'ı '${topReason1}' ve %${topReasons[1].percentage}'ı '${topReason2}' konularında yoğunlaşıyor. ${riskLevel} risk seviyesi tespit edildi.`
+        : `Ayrılmaların %${topReasons[0].percentage}'ı '${topReason1}' nedeniyle gerçekleşiyor. ${riskLevel} risk seviyesi tespit edildi.`;
+
+    // Aksiyon önerileri
+    const recommendations = [];
+    if (avgManagerRating < 3.5) {
+        recommendations.push('Yönetici Eğitim Programı Başlatın (Öncelik: Yüksek)');
+    }
+    if (topReasons.some(r => r.reason.includes('Maaş'))) {
+        recommendations.push('Maaş Rekabet Analizi Yapın (Öncelik: Yüksek)');
+    }
+    if (topReasons.some(r => r.reason.includes('Kariyer') || r.reason.includes('Gelişim'))) {
+        recommendations.push('Kariyer Gelişim Programları Güçlendirin (Öncelik: Orta)');
+    }
+    if (avgCompanyRating < 3.5) {
+        recommendations.push('Şirket Kültürü İyileştirme Çalışmaları (Öncelik: Orta)');
+    }
+    if (recommendationRate < 50) {
+        recommendations.push('Employee Experience İyileştirme Programı (Öncelik: Yüksek)');
+    }
+
+    // Key quotes (simülasyon)
+    const keyQuotes = exitInterviews
+        .filter(i => i.feedback && i.feedback.length > 20)
+        .slice(0, 3)
+        .map(i => i.feedback.substring(0, 80) + (i.feedback.length > 80 ? '...' : ''));
+
+    const analysis = {
+        strategicSummary,
+        topReasons,
+        averageManagerRating: parseFloat(avgManagerRating.toFixed(1)),
+        averageCompanyRating: parseFloat(avgCompanyRating.toFixed(1)),
+        recommendationRate,
+        departmentInsights,
+        actionableRecommendations: recommendations.length > 0 ? recommendations : ['Mevcut stratejilere devam edin'],
+        riskLevel,
+        keyQuotes: keyQuotes.length > 0 ? keyQuotes : ['Yeterli geri bildirim bulunamadı']
+    };
+
+    console.log('✅ Demo analiz tamamlandı:', analysis);
+
+    return {
+        success: true,
+        analysis,
+        totalInterviews: exitInterviews.length,
+        analyzedAt: new Date().toISOString(),
+        demoMode: true
+    };
+}

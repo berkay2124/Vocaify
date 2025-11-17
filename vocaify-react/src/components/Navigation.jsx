@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, UserCheck, Search, BarChart3, CreditCard, Sparkles, Shield, MessageSquare, UserPlus, Link2, TrendingUp, PieChart, Briefcase, BookOpen, Trophy, Heart, Receipt } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, Search, BarChart3, CreditCard, Sparkles, Shield, MessageSquare, UserPlus, Link2, TrendingUp, PieChart, Briefcase, BookOpen, Trophy, Heart, Receipt, UserMinus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -29,6 +29,7 @@ function Navigation() {
         { id: 'reports', label: 'Özel Raporlar', icon: BarChart3 },
         { id: 'strategicmodeling', label: 'Stratejik Modelleme', icon: TrendingUp },
         { id: 'expenses', label: 'Gider Yönetimi', icon: Receipt },
+        { id: 'exitinterview', label: 'Exit Interview', icon: UserMinus },
         { id: 'gamification', label: 'Oyunlaştırma', icon: Trophy },
         { id: 'kudosfeed', label: 'Kudos Akışı', icon: Heart },
         { id: 'integrations', label: 'Entegrasyonlar', icon: Link2 },
