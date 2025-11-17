@@ -1,5 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loadFromStorage, saveToStorage } from '../utils/dataManager';
+import { useAuth } from './AuthContext';
+import {
+    loadFromFirestore,
+    addCandidate as addCandidateToFirestore,
+    addEmployee as addEmployeeToFirestore,
+    updateCandidateInFirestore,
+    updateEmployeeInFirestore,
+    deleteCandidate,
+    deleteEmployee,
+    moveCandidateToEmployee,
+    clearAllDataInFirestore
+} from '../utils/dataManager';
 
 const AppContext = createContext();
 
@@ -12,11 +23,14 @@ export function useApp() {
 }
 
 export function AppProvider({ children }) {
+    const { currentUser } = useAuth();
+
     // State
     const [activeTab, setActiveTab] = useState('dashboard');
     const [candidates, setCandidates] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [dataLoading, setDataLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedPerson, setSelectedPerson] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -25,19 +39,156 @@ export function AppProvider({ children }) {
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterPlatform, setFilterPlatform] = useState('all');
 
-    // Load data on mount
+    /**
+     * Kullanıcı değiştiğinde Firestore'dan verileri yükle
+     */
     useEffect(() => {
-        const data = loadFromStorage();
-        setCandidates(data.candidates);
-        setEmployees(data.employees);
-    }, []);
-
-    // Save data whenever candidates or employees change
-    useEffect(() => {
-        if (candidates.length > 0 || employees.length > 0) {
-            saveToStorage(candidates, employees);
+        if (currentUser) {
+            loadDataFromFirestore();
+        } else {
+            setCandidates([]);
+            setEmployees([]);
+            setDataLoading(false);
         }
-    }, [candidates, employees]);
+    }, [currentUser]);
+
+    /**
+     * Firestore'dan verileri yükle
+     */
+    const loadDataFromFirestore = async () => {
+        if (!currentUser) return;
+
+        try {
+            setDataLoading(true);
+            const data = await loadFromFirestore(currentUser.uid);
+            setCandidates(data.candidates);
+            setEmployees(data.employees);
+        } catch (error) {
+            console.error('Veri yükleme hatası:', error);
+        } finally {
+            setDataLoading(false);
+        }
+    };
+
+    /**
+     * Yeni aday ekle
+     */
+    const addCandidate = async (candidate) => {
+        if (!currentUser) return;
+
+        try {
+            await addCandidateToFirestore(currentUser.uid, candidate);
+            setCandidates(prev => [candidate, ...prev]);
+        } catch (error) {
+            console.error('Aday ekleme hatası:', error);
+            throw error;
+        }
+    };
+
+    /**
+     * Aday güncelle
+     */
+    const updateCandidate = async (candidateId, updates) => {
+        if (!currentUser) return;
+
+        try {
+            // Önce local state'i güncelle (optimistic update)
+            setCandidates(prevCandidates =>
+                prevCandidates.map(c =>
+                    c.id === candidateId ? { ...c, ...updates } : c
+                )
+            );
+
+            // Sonra Firestore'a yaz
+            await updateCandidateInFirestore(currentUser.uid, candidateId, updates);
+        } catch (error) {
+            console.error('Aday güncelleme hatası:', error);
+            // Hata durumunda verileri yeniden yükle
+            await loadDataFromFirestore();
+            throw error;
+        }
+    };
+
+    /**
+     * Yeni personel ekle
+     */
+    const addEmployee = async (employee) => {
+        if (!currentUser) return;
+
+        try {
+            await addEmployeeToFirestore(currentUser.uid, employee);
+            setEmployees(prev => [employee, ...prev]);
+        } catch (error) {
+            console.error('Personel ekleme hatası:', error);
+            throw error;
+        }
+    };
+
+    /**
+     * Personel güncelle
+     */
+    const updateEmployee = async (employeeId, updates) => {
+        if (!currentUser) return;
+
+        try {
+            // Önce local state'i güncelle (optimistic update)
+            setEmployees(prevEmployees =>
+                prevEmployees.map(e =>
+                    e.id === employeeId ? { ...e, ...updates } : e
+                )
+            );
+
+            // Sonra Firestore'a yaz
+            await updateEmployeeInFirestore(currentUser.uid, employeeId, updates);
+        } catch (error) {
+            console.error('Personel güncelleme hatası:', error);
+            // Hata durumunda verileri yeniden yükle
+            await loadDataFromFirestore();
+            throw error;
+        }
+    };
+
+    /**
+     * Adayı personele dönüştür
+     */
+    const promoteCandidateToEmployee = async (candidateId, employeeData) => {
+        if (!currentUser) return;
+
+        try {
+            // Local state'i güncelle
+            setCandidates(prev => prev.filter(c => c.id !== candidateId));
+            setEmployees(prev => [employeeData, ...prev]);
+
+            // Firestore'da işlemi gerçekleştir
+            await moveCandidateToEmployee(currentUser.uid, candidateId, employeeData);
+        } catch (error) {
+            console.error('Aday personele dönüştürme hatası:', error);
+            // Hata durumunda verileri yeniden yükle
+            await loadDataFromFirestore();
+            throw error;
+        }
+    };
+
+    /**
+     * Tüm verileri temizle
+     */
+    const clearAllData = async () => {
+        if (!currentUser) return;
+
+        if (window.confirm('TÜM ADAY VE PERSONEL VERİLERİ SİLİNECEK! Emin misiniz?')) {
+            try {
+                setLoading(true);
+                await clearAllDataInFirestore(currentUser.uid);
+                setCandidates([]);
+                setEmployees([]);
+            } catch (error) {
+                console.error('Veri temizleme hatası:', error);
+                alert('Veriler temizlenirken bir hata oluştu.');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
 
     // Modal functions
     const openModal = (type, person) => {
@@ -53,36 +204,13 @@ export function AppProvider({ children }) {
         setModalType('');
     };
 
-    // Data update functions
-    const updateCandidate = (candidateId, updates) => {
-        setCandidates(prevCandidates =>
-            prevCandidates.map(c =>
-                c.id === candidateId ? { ...c, ...updates } : c
-            )
-        );
-    };
-
-    const updateEmployee = (employeeId, updates) => {
-        setEmployees(prevEmployees =>
-            prevEmployees.map(e =>
-                e.id === employeeId ? { ...e, ...updates } : e
-            )
-        );
-    };
-
-    const clearAllData = () => {
-        if (window.confirm('TÜM ADAY VE PERSONEL VERİLERİ SİLİNECEK! Emin misiniz?')) {
-            setCandidates([]);
-            setEmployees([]);
-        }
-    };
-
     const value = {
         // State
         activeTab,
         candidates,
         employees,
         loading,
+        dataLoading,
         searchQuery,
         selectedPerson,
         showModal,
@@ -102,13 +230,30 @@ export function AppProvider({ children }) {
         setModalTab,
         setFilterStatus,
         setFilterPlatform,
-        // Functions
-        openModal,
-        closeModal,
+        // CRUD Functions
+        addCandidate,
         updateCandidate,
+        addEmployee,
         updateEmployee,
-        clearAllData
+        promoteCandidateToEmployee,
+        clearAllData,
+        loadDataFromFirestore,
+        // Modal Functions
+        openModal,
+        closeModal
     };
+
+    // Veriler yüklenene kadar loading göster
+    if (dataLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+                <div className="glass p-8 rounded-2xl flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-white font-medium">Verileriniz yükleniyor...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <AppContext.Provider value={value}>

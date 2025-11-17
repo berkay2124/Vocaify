@@ -1,4 +1,6 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider, useApp } from './context/AppContext';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
@@ -9,9 +11,29 @@ import Candidates from './tabs/Candidates';
 import Employees from './tabs/Employees';
 import Search from './tabs/Search';
 import Analytics from './tabs/Analytics';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import { localAnalyzeCV } from './utils/helpers';
 import './App.css';
 
+/**
+ * Protected Route Component
+ * Giriş yapmamış kullanıcıları login sayfasına yönlendirir
+ */
+function ProtectedRoute({ children }) {
+    const { currentUser } = useAuth();
+
+    if (!currentUser) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return children;
+}
+
+/**
+ * Main App Content Component
+ * Ana uygulama içeriğini render eder (giriş yapılmış kullanıcılar için)
+ */
 function AppContent() {
     const { activeTab, loading, setLoading, setCandidates, candidates } = useApp();
 
@@ -106,11 +128,33 @@ function AppContent() {
     );
 }
 
+/**
+ * Main App Component
+ * Router, Auth Provider ve App Provider'ı sarmallar
+ */
 function App() {
     return (
-        <AppProvider>
-            <AppContent />
-        </AppProvider>
+        <Router>
+            <AuthProvider>
+                <Routes>
+                    {/* Public Routes */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+
+                    {/* Protected Routes */}
+                    <Route
+                        path="/*"
+                        element={
+                            <ProtectedRoute>
+                                <AppProvider>
+                                    <AppContent />
+                                </AppProvider>
+                            </ProtectedRoute>
+                        }
+                    />
+                </Routes>
+            </AuthProvider>
+        </Router>
     );
 }
 
