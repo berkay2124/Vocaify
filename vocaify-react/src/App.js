@@ -16,6 +16,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Billing from './pages/Billing';
 import Sourcing from './pages/Sourcing';
+import SuperAdmin from './pages/SuperAdmin';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
 import './App.css';
@@ -166,6 +167,8 @@ function AppContent() {
                 return <Analytics />;
             case 'billing':
                 return <Billing />;
+            case 'superadmin':
+                return <SuperAdmin />;
             default:
                 return <Dashboard />;
         }

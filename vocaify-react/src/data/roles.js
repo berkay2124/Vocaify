@@ -7,6 +7,7 @@
  * Sistem Rolleri
  */
 export const ROLES = {
+    SUPER_ADMIN: 'super_admin', // Vocaify işletmecisi (tüm müşterileri yönetir)
     ADMIN: 'admin',
     HIRING_MANAGER: 'hiring_manager',
     INTERVIEWER: 'interviewer',
@@ -17,6 +18,12 @@ export const ROLES = {
  * Rol Tanımları ve Açıklamaları
  */
 export const ROLE_DEFINITIONS = {
+    [ROLES.SUPER_ADMIN]: {
+        name: 'Super Admin',
+        displayName: 'Süper Yönetici',
+        description: 'Vocaify işletmecisi - Tüm müşterileri yönetir',
+        level: 999
+    },
     [ROLES.ADMIN]: {
         name: 'Admin',
         displayName: 'Yönetici',
@@ -84,16 +91,32 @@ export const PERMISSIONS = {
 
     // AI İzinleri
     USE_AI_SEARCH: 'use_ai_search',
-    USE_AI_SOURCING: 'use_ai_sourcing'
+    USE_AI_SOURCING: 'use_ai_sourcing',
+
+    // Süper Admin İzinleri (Müşteri Yönetimi)
+    VIEW_ALL_CUSTOMERS: 'view_all_customers',
+    MANAGE_CUSTOMERS: 'manage_customers',
+    SUSPEND_CUSTOMER: 'suspend_customer',
+    VIEW_CUSTOMER_SUBSCRIPTIONS: 'view_customer_subscriptions'
 };
 
 /**
  * Rol Bazlı İzin Matrisi
  */
 export const ROLE_PERMISSIONS = {
-    [ROLES.ADMIN]: [
-        // Admin her şeyi yapabilir
+    [ROLES.SUPER_ADMIN]: [
+        // Super Admin her şeyi yapabilir + müşteri yönetimi
         ...Object.values(PERMISSIONS)
+    ],
+
+    [ROLES.ADMIN]: [
+        // Admin her şeyi yapabilir (kendi şirketi içinde)
+        ...Object.values(PERMISSIONS).filter(p =>
+            !p.startsWith('view_all_customers') &&
+            !p.startsWith('manage_customers') &&
+            !p.startsWith('suspend_customer') &&
+            !p.startsWith('view_customer_subscriptions')
+        )
     ],
 
     [ROLES.HIRING_MANAGER]: [
@@ -244,7 +267,8 @@ export function canViewNavigationTab(role, tabId) {
         'search': [PERMISSIONS.USE_AI_SEARCH],
         'sourcing': [PERMISSIONS.USE_AI_SOURCING],
         'analytics': [PERMISSIONS.VIEW_ANALYTICS],
-        'billing': [PERMISSIONS.VIEW_BILLING]
+        'billing': [PERMISSIONS.VIEW_BILLING],
+        'superadmin': [PERMISSIONS.VIEW_ALL_CUSTOMERS] // Sadece Super Admin
     };
 
     const requiredPermissions = tabPermissions[tabId] || [];
