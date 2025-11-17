@@ -1,20 +1,22 @@
 import React from 'react';
 import { LayoutDashboard, Users, UserCheck, Search, BarChart3, CreditCard } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 
 /**
  * Ana navigasyon sekmelerini render eder
  */
 function Navigation() {
+    const { t } = useTranslation();
     const { activeTab, setActiveTab } = useApp();
 
     const tabs = [
-        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { id: 'candidates', label: 'Adaylar', icon: Users },
-        { id: 'employees', label: 'Personeller', icon: UserCheck },
-        { id: 'search', label: 'AI Arama', icon: Search },
-        { id: 'analytics', label: 'Analizler', icon: BarChart3 },
-        { id: 'billing', label: 'Faturalama', icon: CreditCard }
+        { id: 'dashboard', label: t('navigation.dashboard'), icon: LayoutDashboard },
+        { id: 'candidates', label: t('navigation.candidates'), icon: Users },
+        { id: 'employees', label: t('navigation.employees'), icon: UserCheck },
+        { id: 'search', label: t('navigation.aiSearch'), icon: Search },
+        { id: 'analytics', label: t('navigation.analytics'), icon: BarChart3 },
+        { id: 'billing', label: t('navigation.billing'), icon: CreditCard }
     ];
 
     return (

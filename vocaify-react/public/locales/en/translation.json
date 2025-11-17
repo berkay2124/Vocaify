@@ -1,0 +1,245 @@
+{
+  "common": {
+    "appName": "Vocaify HR",
+    "appTagline": "AI-Powered Human Resources",
+    "loading": "Loading...",
+    "loadingData": "Loading your data...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "candidates": "Candidates",
+    "employees": "Employees",
+    "aiSearch": "AI Search",
+    "analytics": "Analytics",
+    "billing": "Billing"
+  },
+  "header": {
+    "cvUpload": "Upload CV",
+    "clearAllData": "Clear All Data",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email Address",
+      "password": "Password",
+      "emailPlaceholder": "example@email.com",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Login",
+      "loggingIn": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "register": "Sign up",
+      "demoInfo": "💡 Demo: You can register with any email and password",
+      "errors": {
+        "userNotFound": "No user found with this email.",
+        "wrongPassword": "Wrong password. Please try again.",
+        "invalidEmail": "Invalid email address.",
+        "userDisabled": "This account has been disabled.",
+        "tooManyRequests": "Too many failed attempts. Please try again later.",
+        "default": "An error occurred while logging in. Please try again."
+      }
+    },
+    "register": {
+      "title": "Sign Up",
+      "displayName": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "displayNamePlaceholder": "John Doe",
+      "emailPlaceholder": "example@email.com",
+      "passwordPlaceholder": "••••••••",
+      "registerButton": "Sign Up",
+      "registering": "Signing up...",
+      "haveAccount": "Already have an account?",
+      "login": "Login",
+      "demoInfo": "💡 Demo: You can use any email and password",
+      "errors": {
+        "passwordsDontMatch": "Passwords don't match.",
+        "passwordTooShort": "Password must be at least 6 characters.",
+        "emailInUse": "This email address is already in use.",
+        "invalidEmail": "Invalid email address.",
+        "weakPassword": "Password is too weak. Please use a stronger password.",
+        "default": "An error occurred while signing up. Please try again."
+      }
+    }
+  },
+  "billing": {
+    "title": "Transparent",
+    "titleHighlight": "Pricing",
+    "subtitle": "Choose the plan that fits your needs, cancel anytime",
+    "subscription": {
+      "active": "Active Subscription",
+      "nextPayment": "Next payment",
+      "cancel": "Cancel Subscription"
+    },
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "subtitle": "For small teams",
+        "price": "$99",
+        "period": "/mo",
+        "yearlyDiscount": "20% off with annual billing",
+        "features": [
+          "50 CV/month AI analysis",
+          "Smart search",
+          "KPI evaluation",
+          "Basic reports",
+          "Email support"
+        ],
+        "button": "Get Started"
+      },
+      "professional": {
+        "name": "Professional",
+        "subtitle": "For growing companies",
+        "badge": "Most Popular",
+        "price": "$249",
+        "period": "/mo",
+        "yearlyDiscount": "20% off with annual billing",
+        "features": [
+          "Unlimited CV analysis",
+          "Advanced AI matching",
+          "Lifecycle management",
+          "Performance tracking",
+          "Advanced reporting",
+          "Priority support",
+          "API integration"
+        ],
+        "button": "Get Started Now"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "subtitle": "For large organizations",
+        "price": "Custom",
+        "customPrice": "Custom package for your needs",
+        "features": [
+          "Everything in Professional",
+          "Custom AI model training",
+          "Multi-company management",
+          "Custom integrations",
+          "Private server option",
+          "24/7 premium support",
+          "Training and consulting"
+        ],
+        "button": "Contact Us"
+      }
+    },
+    "info": {
+      "title": "Payment Information",
+      "points": [
+        "All payments are securely processed through Stripe",
+        "Cancel anytime, no early cancellation fees",
+        "20% discount applied for annual plans",
+        "Invoices automatically sent to your email",
+        "14-day money-back guarantee (no questions asked)"
+      ]
+    },
+    "processing": "Processing..."
+  },
+  "dashboard": {
+    "title": "Overview",
+    "stats": {
+      "totalCandidates": "Total Candidates",
+      "totalEmployees": "Total Employees",
+      "activeProcesses": "Active Processes",
+      "avgTime": "Avg. Hiring Time"
+    },
+    "recentCandidates": "Recently Added Candidates",
+    "quickActions": "Quick Actions",
+    "noData": "No data yet",
+    "uploadCV": "Start by uploading a CV"
+  },
+  "candidates": {
+    "title": "Candidates",
+    "searchPlaceholder": "Search candidates...",
+    "status": {
+      "all": "All",
+      "candidate": "Candidate",
+      "interview": "Interview",
+      "offer": "Offer",
+      "rejected": "Rejected"
+    },
+    "platform": {
+      "all": "All Platforms",
+      "manual": "Manual Upload",
+      "linkedin": "LinkedIn",
+      "kariyer": "Kariyer.net"
+    },
+    "card": {
+      "uploadDate": "Uploaded",
+      "viewDetails": "View Details"
+    },
+    "empty": "No candidates yet",
+    "emptySearch": "No search results found"
+  },
+  "employees": {
+    "title": "Employees",
+    "searchPlaceholder": "Search employees...",
+    "card": {
+      "hireDate": "Hire Date",
+      "department": "Department",
+      "viewDetails": "View Details"
+    },
+    "empty": "No employees yet",
+    "emptySearch": "No search results found"
+  },
+  "search": {
+    "title": "AI-Powered Smart Search",
+    "subtitle": "Search in natural language, let AI find the best candidates for you",
+    "placeholder": "E.g: Full-stack developer with 5 years of React experience, able to work in Istanbul",
+    "searchButton": "Search",
+    "searching": "Searching...",
+    "results": "Search Results",
+    "noResults": "No results found",
+    "examples": {
+      "title": "Example Searches",
+      "example1": "Backend developer with 3+ years of Python experience",
+      "example2": "Frontend developer who speaks English, can work remotely",
+      "example3": "Data analyst who can work in Ankara, knows SQL"
+    }
+  },
+  "analytics": {
+    "title": "Analytics and Reports",
+    "hiringFunnel": "Hiring Funnel",
+    "monthlyTrends": "Monthly Trends",
+    "topSkills": "Most Sought Skills",
+    "platformPerformance": "Platform Performance",
+    "timeToHire": "Time to Hire"
+  },
+  "modal": {
+    "tabs": {
+      "details": "Details",
+      "evaluation": "Evaluation",
+      "interview": "Interview",
+      "offer": "Offer"
+    },
+    "details": {
+      "basicInfo": "Basic Information",
+      "aiAnalysis": "AI Analysis",
+      "documents": "Documents",
+      "statusHistory": "Status History"
+    },
+    "promote": "Convert to Employee",
+    "delete": "Delete"
+  },
+  "notifications": {
+    "cvUploaded": "CV uploaded successfully",
+    "candidateAdded": "Candidate added",
+    "candidateUpdated": "Candidate updated",
+    "candidateDeleted": "Candidate deleted",
+    "employeeAdded": "Employee added",
+    "employeeUpdated": "Employee updated",
+    "employeeDeleted": "Employee deleted",
+    "error": "An error occurred"
+  }
+}

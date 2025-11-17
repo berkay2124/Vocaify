@@ -1,0 +1,245 @@
+{
+  "common": {
+    "appName": "Vocaify HR",
+    "appTagline": "AI Destekli İnsan Kaynakları",
+    "loading": "Yükleniyor...",
+    "loadingData": "Verileriniz yükleniyor...",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "close": "Kapat",
+    "confirm": "Onayla",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "all": "Tümü",
+    "yes": "Evet",
+    "no": "Hayır"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "candidates": "Adaylar",
+    "employees": "Personeller",
+    "aiSearch": "AI Arama",
+    "analytics": "Analizler",
+    "billing": "Faturalama"
+  },
+  "header": {
+    "cvUpload": "CV Yükle",
+    "clearAllData": "Tüm Verileri Temizle",
+    "logout": "Çıkış Yap"
+  },
+  "auth": {
+    "login": {
+      "title": "Giriş Yap",
+      "email": "Email Adresi",
+      "password": "Şifre",
+      "emailPlaceholder": "ornek@email.com",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Giriş Yap",
+      "loggingIn": "Giriş Yapılıyor...",
+      "noAccount": "Hesabınız yok mu?",
+      "register": "Kayıt Olun",
+      "demoInfo": "💡 Demo: Herhangi bir email ve şifre ile kayıt olabilirsiniz",
+      "errors": {
+        "userNotFound": "Bu email ile kayıtlı kullanıcı bulunamadı.",
+        "wrongPassword": "Hatalı şifre. Lütfen tekrar deneyin.",
+        "invalidEmail": "Geçersiz email adresi.",
+        "userDisabled": "Bu hesap devre dışı bırakılmış.",
+        "tooManyRequests": "Çok fazla başarısız deneme. Lütfen daha sonra tekrar deneyin.",
+        "default": "Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin."
+      }
+    },
+    "register": {
+      "title": "Kayıt Ol",
+      "displayName": "Ad Soyad",
+      "email": "Email Adresi",
+      "password": "Şifre",
+      "confirmPassword": "Şifre Tekrar",
+      "displayNamePlaceholder": "Ahmet Yılmaz",
+      "emailPlaceholder": "ornek@email.com",
+      "passwordPlaceholder": "••••••••",
+      "registerButton": "Kayıt Ol",
+      "registering": "Kayıt Olunuyor...",
+      "haveAccount": "Zaten hesabınız var mı?",
+      "login": "Giriş Yapın",
+      "demoInfo": "💡 Demo: Herhangi bir email ve şifre kullanabilirsiniz",
+      "errors": {
+        "passwordsDontMatch": "Şifreler eşleşmiyor.",
+        "passwordTooShort": "Şifre en az 6 karakter olmalıdır.",
+        "emailInUse": "Bu email adresi zaten kullanılıyor.",
+        "invalidEmail": "Geçersiz email adresi.",
+        "weakPassword": "Şifre çok zayıf. Lütfen daha güçlü bir şifre kullanın.",
+        "default": "Kayıt olurken bir hata oluştu. Lütfen tekrar deneyin."
+      }
+    }
+  },
+  "billing": {
+    "title": "Şeffaf",
+    "titleHighlight": "Fiyatlandırma",
+    "subtitle": "İhtiyacınıza uygun planı seçin, istediğiniz zaman iptal edin",
+    "subscription": {
+      "active": "Aktif Abonelik",
+      "nextPayment": "Sonraki ödeme",
+      "cancel": "Aboneliği İptal Et"
+    },
+    "plans": {
+      "starter": {
+        "name": "Başlangıç",
+        "subtitle": "Küçük ekipler için",
+        "price": "₺2,999",
+        "period": "/ay",
+        "yearlyDiscount": "Yıllık ödeme ile %20 indirim",
+        "features": [
+          "50 CV/ay AI analizi",
+          "Akıllı arama",
+          "KPI değerlendirme",
+          "Temel raporlar",
+          "Email desteği"
+        ],
+        "button": "Başlayın"
+      },
+      "professional": {
+        "name": "Profesyonel",
+        "subtitle": "Büyüyen şirketler için",
+        "badge": "En Popüler",
+        "price": "₺6,999",
+        "period": "/ay",
+        "yearlyDiscount": "Yıllık ödeme ile %20 indirim",
+        "features": [
+          "Sınırsız CV analizi",
+          "Gelişmiş AI eşleştirme",
+          "Yaşam döngüsü yönetimi",
+          "Performans takibi",
+          "Gelişmiş raporlama",
+          "Öncelikli destek",
+          "API entegrasyonu"
+        ],
+        "button": "Hemen Başlayın"
+      },
+      "enterprise": {
+        "name": "Kurumsal",
+        "subtitle": "Büyük organizasyonlar için",
+        "price": "Özel",
+        "customPrice": "İhtiyaçlarınıza özel paket",
+        "features": [
+          "Profesyonel'deki her şey",
+          "Özel AI modeli eğitimi",
+          "Çoklu şirket yönetimi",
+          "Özel entegrasyonlar",
+          "Özel sunucu seçeneği",
+          "7/24 premium destek",
+          "Eğitim ve danışmanlık"
+        ],
+        "button": "İletişime Geçin"
+      }
+    },
+    "info": {
+      "title": "Ödeme Bilgilendirmesi",
+      "points": [
+        "Tüm ödemeler Stripe ile güvenli bir şekilde işlenir",
+        "İstediğiniz zaman iptal edebilirsiniz, erken iptal ücreti yoktur",
+        "Yıllık planlar için %20 indirim uygulanır",
+        "Faturalar otomatik olarak email adresinize gönderilir",
+        "14 gün para iade garantisi (sorulsuz sualsiz)"
+      ]
+    },
+    "processing": "İşleniyor..."
+  },
+  "dashboard": {
+    "title": "Genel Bakış",
+    "stats": {
+      "totalCandidates": "Toplam Aday",
+      "totalEmployees": "Toplam Personel",
+      "activeProcesses": "Aktif Süreç",
+      "avgTime": "Ort. İşe Alım Süresi"
+    },
+    "recentCandidates": "Son Eklenen Adaylar",
+    "quickActions": "Hızlı İşlemler",
+    "noData": "Henüz veri bulunmuyor",
+    "uploadCV": "CV yükleyerek başlayın"
+  },
+  "candidates": {
+    "title": "Adaylar",
+    "searchPlaceholder": "Aday ara...",
+    "status": {
+      "all": "Tümü",
+      "candidate": "Aday",
+      "interview": "Mülakatda",
+      "offer": "Teklif",
+      "rejected": "Reddedildi"
+    },
+    "platform": {
+      "all": "Tüm Platformlar",
+      "manual": "Manuel Yükleme",
+      "linkedin": "LinkedIn",
+      "kariyer": "Kariyer.net"
+    },
+    "card": {
+      "uploadDate": "Yükleme",
+      "viewDetails": "Detayları Gör"
+    },
+    "empty": "Henüz aday bulunmuyor",
+    "emptySearch": "Arama sonucu bulunamadı"
+  },
+  "employees": {
+    "title": "Personeller",
+    "searchPlaceholder": "Personel ara...",
+    "card": {
+      "hireDate": "İşe Başlama",
+      "department": "Departman",
+      "viewDetails": "Detayları Gör"
+    },
+    "empty": "Henüz personel bulunmuyor",
+    "emptySearch": "Arama sonucu bulunamadı"
+  },
+  "search": {
+    "title": "AI Destekli Akıllı Arama",
+    "subtitle": "Doğal dilde arama yapın, AI sizin için en uygun adayları bulsun",
+    "placeholder": "Örn: 5 yıl React deneyimi olan, İstanbul'da çalışabilecek full-stack developer",
+    "searchButton": "Ara",
+    "searching": "Aranıyor...",
+    "results": "Arama Sonuçları",
+    "noResults": "Sonuç bulunamadı",
+    "examples": {
+      "title": "Örnek Aramalar",
+      "example1": "3+ yıl Python deneyimi olan backend developer",
+      "example2": "İngilizce bilen, remote çalışabilecek frontend developer",
+      "example3": "Ankara'da çalışabilecek, SQL bilen veri analisti"
+    }
+  },
+  "analytics": {
+    "title": "Analizler ve Raporlar",
+    "hiringFunnel": "İşe Alım Hunisi",
+    "monthlyTrends": "Aylık Trend",
+    "topSkills": "En Çok Aranan Yetenekler",
+    "platformPerformance": "Platform Performansı",
+    "timeToHire": "İşe Alım Süresi"
+  },
+  "modal": {
+    "tabs": {
+      "details": "Detay",
+      "evaluation": "Değerlendirme",
+      "interview": "Mülakat",
+      "offer": "Teklif"
+    },
+    "details": {
+      "basicInfo": "Temel Bilgiler",
+      "aiAnalysis": "AI Analizi",
+      "documents": "Dökümanlar",
+      "statusHistory": "Durum Geçmişi"
+    },
+    "promote": "Personele Dönüştür",
+    "delete": "Sil"
+  },
+  "notifications": {
+    "cvUploaded": "CV başarıyla yüklendi",
+    "candidateAdded": "Aday eklendi",
+    "candidateUpdated": "Aday güncellendi",
+    "candidateDeleted": "Aday silindi",
+    "employeeAdded": "Personel eklendi",
+    "employeeUpdated": "Personel güncellendi",
+    "employeeDeleted": "Personel silindi",
+    "error": "Bir hata oluştu"
+  }
+}

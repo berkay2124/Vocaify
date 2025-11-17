@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider, useApp } from './context/AppContext';
+import './i18n'; // Initialize i18n
 import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Loader from './components/Loader';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Upload, Trash2, Zap, LogOut, User } from 'lucide-react';
+import { Upload, Trash2, Zap, LogOut, User, Languages } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
  * Logo, uygulama adı, kullanıcı bilgisi, CV yükleme, veri temizleme ve çıkış butonunu içerir
  */
 function Header({ onCVUpload }) {
+    const { t, i18n } = useTranslation();
     const { clearAllData } = useApp();
     const { currentUser, logout } = useAuth();
 
@@ -19,6 +21,12 @@ function Header({ onCVUpload }) {
         }
     };
 
+    const changeLanguage = (lng) => {
+        i18n.changeLanguage(lng);
+    };
+
+    const currentLanguage = i18n.language;
+
     return (
         <header className="glass sticky top-0 z-40 border-b border-purple-500/20">
             <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -27,12 +35,36 @@ function Header({ onCVUpload }) {
                         <Zap className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Vocaify HR</h1>
-                        <p className="text-purple-300 text-sm">AI Destekli İnsan Kaynakları</p>
+                        <h1 className="text-2xl font-bold text-white">{t('common.appName')}</h1>
+                        <p className="text-purple-300 text-sm">{t('common.appTagline')}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3">
+                    {/* Language Switcher */}
+                    <div className="flex items-center gap-1 bg-slate-700/50 rounded-xl p-1 border border-purple-500/20">
+                        <button
+                            onClick={() => changeLanguage('tr')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                currentLanguage === 'tr'
+                                    ? 'bg-purple-500 text-white'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            TR
+                        </button>
+                        <button
+                            onClick={() => changeLanguage('en')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                currentLanguage === 'en'
+                                    ? 'bg-purple-500 text-white'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            EN
+                        </button>
+                    </div>
+
                     {/* User Info */}
                     {currentUser && (
                         <div className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 rounded-xl border border-purple-500/20">
@@ -53,7 +85,7 @@ function Header({ onCVUpload }) {
                     {/* CV Upload Button */}
                     <label className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all cursor-pointer font-medium flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        <span className="hidden sm:inline">CV Yükle</span>
+                        <span className="hidden sm:inline">{t('header.cvUpload')}</span>
                         <input
                             type="file"
                             accept=".pdf,.doc,.docx,.txt"
@@ -67,7 +99,7 @@ function Header({ onCVUpload }) {
                     <button
                         onClick={clearAllData}
                         className="p-3 bg-red-500/20 text-red-300 rounded-xl hover:bg-red-500/30 transition-all"
-                        title="Tüm Verileri Temizle"
+                        title={t('header.clearAllData')}
                     >
                         <Trash2 className="w-5 h-5" />
                     </button>
@@ -76,7 +108,7 @@ function Header({ onCVUpload }) {
                     <button
                         onClick={handleLogout}
                         className="p-3 bg-orange-500/20 text-orange-300 rounded-xl hover:bg-orange-500/30 transition-all"
-                        title="Çıkış Yap"
+                        title={t('header.logout')}
                     >
                         <LogOut className="w-5 h-5" />
                     </button>
