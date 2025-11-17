@@ -19,6 +19,7 @@ import Sourcing from './pages/Sourcing';
 import SuperAdmin from './pages/SuperAdmin';
 import Feedback from './pages/Feedback';
 import Onboarding from './pages/Onboarding';
+import Integrations from './pages/Integrations';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
 import './App.css';
@@ -175,6 +176,8 @@ function AppContent() {
                 return <Feedback />;
             case 'onboarding':
                 return <Onboarding />;
+            case 'integrations':
+                return <Integrations />;
             default:
                 return <Dashboard />;
         }
