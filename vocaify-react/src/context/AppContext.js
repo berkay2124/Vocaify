@@ -31,6 +31,11 @@ export function AppProvider({ children }) {
     const [employees, setEmployees] = useState([]);
     const [expenses, setExpenses] = useState([]); // AŞAMA 33: Gider talepleri
     const [exitInterviews, setExitInterviews] = useState([]); // AŞAMA 35: Exit Interview verileri
+    const [notificationSettings, setNotificationSettings] = useState({ // AŞAMA 36: Slack/Teams bildirim ayarları
+        slack: { enabled: false, webhookUrl: '', channel: '#hr-notifications', connected: false },
+        teams: { enabled: false, webhookUrl: '', channel: 'HR Team', connected: false }
+    });
+    const [notificationHistory, setNotificationHistory] = useState([]); // AŞAMA 36: Bildirim geçmişi
     const [loading, setLoading] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -304,6 +309,48 @@ export function AppProvider({ children }) {
         console.log('✅ Exit interview güncellendi:', exitId);
     };
 
+    /**
+     * AŞAMA 36: Notification Management Functions
+     */
+
+    // Bildirim gönder (Slack/Teams simülasyonu)
+    const sendNotification = (type, message, recipient = 'hr-notifications') => {
+        // Aktif platform kontrolü
+        const activePlatform = notificationSettings.slack.enabled ? 'slack' :
+                               notificationSettings.teams.enabled ? 'teams' : null;
+
+        if (!activePlatform) {
+            console.log('⚠️ Bildirim gönderilmedi: Aktif platform yok');
+            return;
+        }
+
+        const notification = {
+            id: 'NOTIF-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+            type: type,
+            platform: activePlatform,
+            message: message,
+            timestamp: new Date().toISOString(),
+            status: 'sent',
+            recipient: recipient
+        };
+
+        setNotificationHistory(prev => [notification, ...prev]);
+        console.log(`📤 ${activePlatform.toUpperCase()} bildirimi gönderildi:`, message);
+        return notification;
+    };
+
+    // Bildirim ayarlarını güncelle
+    const updateNotificationSettings = (platform, updates) => {
+        setNotificationSettings(prev => ({
+            ...prev,
+            [platform]: {
+                ...prev[platform],
+                ...updates
+            }
+        }));
+        console.log(`✅ ${platform} bildirim ayarları güncellendi`);
+    };
+
     const value = {
         // State
         activeTab,
@@ -311,6 +358,8 @@ export function AppProvider({ children }) {
         employees,
         expenses,
         exitInterviews,
+        notificationSettings,
+        notificationHistory,
         loading,
         dataLoading,
         searchQuery,
@@ -325,6 +374,8 @@ export function AppProvider({ children }) {
         setCandidates,
         setEmployees,
         setExpenses,
+        setNotificationSettings,
+        setNotificationHistory,
         setLoading,
         setSearchQuery,
         setSelectedPerson,
@@ -348,7 +399,13 @@ export function AppProvider({ children }) {
         addExpenseClaim,
         updateExpenseClaim,
         approveExpenseClaim,
-        rejectExpenseClaim
+        rejectExpenseClaim,
+        // Exit Interview Functions (AŞAMA 35)
+        addExitInterview,
+        updateExitInterview,
+        // Notification Functions (AŞAMA 36)
+        sendNotification,
+        updateNotificationSettings
     };
 
     // Veriler yüklenene kadar loading göster

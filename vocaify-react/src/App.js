@@ -31,6 +31,7 @@ import KudosFeed from './pages/KudosFeed';
 import StrategicModeling from './pages/StrategicModeling';
 import ExpenseAdmin from './pages/ExpenseAdmin';
 import ExitInterview from './pages/ExitInterview';
+import NotificationManagement from './pages/NotificationManagement';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
@@ -216,6 +217,8 @@ function AppContent() {
                 return <ExpenseAdmin />;
             case 'exitinterview':
                 return <ExitInterview />;
+            case 'notifications':
+                return <NotificationManagement />;
             default:
                 return <Dashboard />;
         }
