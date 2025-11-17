@@ -13,6 +13,7 @@ import Search from './tabs/Search';
 import Analytics from './tabs/Analytics';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Billing from './pages/Billing';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
 import './App.css';
@@ -159,6 +160,8 @@ function AppContent() {
                 return <Search />;
             case 'analytics':
                 return <Analytics />;
+            case 'billing':
+                return <Billing />;
             default:
                 return <Dashboard />;
         }

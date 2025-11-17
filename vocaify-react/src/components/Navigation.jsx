@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, UserCheck, Search, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, Search, BarChart3, CreditCard } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 /**
@@ -13,7 +13,8 @@ function Navigation() {
         { id: 'candidates', label: 'Adaylar', icon: Users },
         { id: 'employees', label: 'Personeller', icon: UserCheck },
         { id: 'search', label: 'AI Arama', icon: Search },
-        { id: 'analytics', label: 'Analizler', icon: BarChart3 }
+        { id: 'analytics', label: 'Analizler', icon: BarChart3 },
+        { id: 'billing', label: 'Faturalama', icon: CreditCard }
     ];
 
     return (
