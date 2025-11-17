@@ -1,0 +1,21 @@
+🎯 VOCAIFY CHROME EXTENSION ICONS
+
+Bu klasöre aşağıdaki icon dosyalarını eklemelisiniz:
+
+1. icon16.png (16x16 piksel)
+2. icon48.png (48x48 piksel)
+3. icon128.png (128x128 piksel)
+
+TASARIM ÖNERİSİ:
+- Vocaify logosu (🎯 işareti)
+- Renk: Mor-pembe gradient (#667eea - #764ba2)
+- Arka plan: Şeffaf veya beyaz
+- Modern, minimal tasarım
+
+ONLINE ARAÇLAR:
+- favicon.io (PNG to ICO converter)
+- canva.com (Logo designer)
+- figma.com (Professional design)
+
+NOT: Bu dosyalar eksik olsa bile extension çalışır,
+sadece varsayılan Chrome ikonu görünür.
