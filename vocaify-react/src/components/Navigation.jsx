@@ -2,15 +2,18 @@ import React from 'react';
 import { LayoutDashboard, Users, UserCheck, Search, BarChart3, CreditCard, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import { canViewNavigationTab } from '../data/roles';
 
 /**
- * Ana navigasyon sekmelerini render eder
+ * Ana navigasyon sekmelerini render eder (rol bazlı görünürlük ile)
  */
 function Navigation() {
     const { t } = useTranslation();
     const { activeTab, setActiveTab } = useApp();
+    const { currentUser } = useAuth();
 
-    const tabs = [
+    const allTabs = [
         { id: 'dashboard', label: t('navigation.dashboard'), icon: LayoutDashboard },
         { id: 'candidates', label: t('navigation.candidates'), icon: Users },
         { id: 'employees', label: t('navigation.employees'), icon: UserCheck },
@@ -19,6 +22,11 @@ function Navigation() {
         { id: 'analytics', label: t('navigation.analytics'), icon: BarChart3 },
         { id: 'billing', label: t('navigation.billing'), icon: CreditCard }
     ];
+
+    // Kullanıcının rolüne göre görünür sekmeleri filtrele
+    const tabs = currentUser
+        ? allTabs.filter(tab => canViewNavigationTab(currentUser.role, tab.id))
+        : allTabs;
 
     return (
         <nav className="glass border-b border-purple-500/20">
