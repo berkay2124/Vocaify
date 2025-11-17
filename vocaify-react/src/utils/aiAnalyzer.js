@@ -842,3 +842,172 @@ function detectBiasDemo(text) {
         warnings
     };
 }
+
+/**
+ * AŞAMA 28: AI Destekli Maaş Kıyaslama (Salary Benchmarking)
+ * Pozisyon ve lokasyona göre piyasa maaş aralığı tahmini yapar
+ * @param {string} positionTitle - Pozisyon adı (örn: "Senior React Developer")
+ * @param {string} location - Lokasyon (örn: "İstanbul", "Ankara")
+ * @returns {Promise<Object>} Tahmini maaş aralığı
+ */
+export async function generateSalaryBenchmark(positionTitle, location = 'Türkiye') {
+    if (!positionTitle || positionTitle.trim().length === 0) {
+        return {
+            success: false,
+            message: 'Pozisyon adı gereklidir.'
+        };
+    }
+
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('Anthropic API key bulunamadı. Demo modu kullanılıyor.');
+        return generateSalaryBenchmarkDemo(positionTitle, location);
+    }
+
+    try {
+        const prompt = `Sen bir İnsan Kaynakları ve ücretlendirme uzmanısın. Aşağıdaki pozisyon için piyasa maaş aralığı tahmini yap:
+
+POZİSYON: ${positionTitle}
+LOKASYON: ${location}
+
+GÖREV:
+- 2024-2025 yılı Türkiye piyasa koşullarına göre gerçekçi bir maaş aralığı tahmin et
+- Pozisyonun seniorlik seviyesini dikkate al (Junior/Mid-level/Senior)
+- Lokasyona göre maaş farklılıklarını hesaba kat (İstanbul genelde %20-30 daha yüksek)
+- Brüt aylık maaş olarak TL cinsinden ver
+- Hem minimum hem maksimum değer öner
+
+ZORUNLU FORMAT:
+JSON formatında döndür:
+{
+  "minSalary": 45000,
+  "maxSalary": 65000,
+  "currency": "TRY",
+  "period": "monthly",
+  "explanation": "Senior React Developer pozisyonu için İstanbul'da piyasa ortalama maaş aralığı. Bu seviye için 5+ yıl deneyim beklenir.",
+  "factors": [
+    "Seniorlik seviyesi yüksek",
+    "İstanbul lokasyonu premium",
+    "Talep yüksek teknoloji stack'i"
+  ],
+  "recommendation": "Bu aralık rekabetçi bir teklif yapmanızı sağlar. Adayın deneyimine göre aralık içinde pozisyon alabilirsiniz."
+}
+
+ÖNEMLI:
+- Gerçekçi değerler ver (abartma veya çok düşük tutma)
+- TRY (Türk Lirası) cinsinden, aylık brüt maaş
+- Pozisyon seviyesini dikkate al (Junior: 20-35K, Mid: 35-55K, Senior: 50-80K, Lead: 80-120K gibi)
+- SADECE JSON döndür, başka metin ekleme`;
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 1500,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API isteği başarısız: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.content[0].text;
+
+        // JSON'u parse et
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            console.warn('AI yanıtında JSON bulunamadı, demo modu kullanılıyor.');
+            return generateSalaryBenchmarkDemo(positionTitle, location);
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+
+        return {
+            success: true,
+            minSalary: parsedData.minSalary || 0,
+            maxSalary: parsedData.maxSalary || 0,
+            currency: parsedData.currency || 'TRY',
+            period: parsedData.period || 'monthly',
+            explanation: parsedData.explanation || '',
+            factors: parsedData.factors || [],
+            recommendation: parsedData.recommendation || ''
+        };
+
+    } catch (error) {
+        console.error('Maaş kıyaslama hatası:', error);
+        console.warn('AI salary benchmark başarısız, demo modu kullanılıyor.');
+        return generateSalaryBenchmarkDemo(positionTitle, location);
+    }
+}
+
+/**
+ * Demo/Fallback modu - Basit kural tabanlı maaş tahmini
+ * @param {string} positionTitle - Pozisyon adı
+ * @param {string} location - Lokasyon
+ * @returns {Object} Demo maaş aralığı
+ */
+function generateSalaryBenchmarkDemo(positionTitle, location = 'Türkiye') {
+    const lowerTitle = positionTitle.toLowerCase();
+
+    // Seniorlik seviyesi tespiti
+    let seniorityMultiplier = 1;
+    let seniority = 'Mid-level';
+
+    if (lowerTitle.includes('junior') || lowerTitle.includes('jr')) {
+        seniorityMultiplier = 0.6;
+        seniority = 'Junior';
+    } else if (lowerTitle.includes('senior') || lowerTitle.includes('sr')) {
+        seniorityMultiplier = 1.5;
+        seniority = 'Senior';
+    } else if (lowerTitle.includes('lead') || lowerTitle.includes('principal') || lowerTitle.includes('chief')) {
+        seniorityMultiplier = 2.2;
+        seniority = 'Lead/Principal';
+    } else if (lowerTitle.includes('manager') || lowerTitle.includes('director')) {
+        seniorityMultiplier = 2.5;
+        seniority = 'Management';
+    }
+
+    // Lokasyon çarpanı
+    let locationMultiplier = 1;
+    const lowerLocation = location.toLowerCase();
+
+    if (lowerLocation.includes('istanbul') || lowerLocation.includes('İstanbul')) {
+        locationMultiplier = 1.25;
+    } else if (lowerLocation.includes('ankara') || lowerLocation.includes('izmir')) {
+        locationMultiplier = 1.1;
+    }
+
+    // Temel maaş (ortalama mid-level developer için)
+    const baseSalary = 40000;
+
+    // Hesaplama
+    const estimatedSalary = baseSalary * seniorityMultiplier * locationMultiplier;
+    const minSalary = Math.round(estimatedSalary * 0.85);
+    const maxSalary = Math.round(estimatedSalary * 1.25);
+
+    return {
+        success: true,
+        minSalary,
+        maxSalary,
+        currency: 'TRY',
+        period: 'monthly',
+        explanation: `${seniority} seviyesindeki ${positionTitle} pozisyonu için ${location} lokasyonunda tahmini piyasa maaş aralığı.`,
+        factors: [
+            `Seniorlik: ${seniority}`,
+            `Lokasyon: ${location}`,
+            'Genel piyasa trendleri'
+        ],
+        recommendation: 'Bu aralık, sektör ortalamasına dayalı bir tahmindir. Şirket ölçeği ve adayın deneyimine göre ayarlayabilirsiniz.'
+    };
+}

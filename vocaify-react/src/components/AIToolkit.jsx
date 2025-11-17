@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Wand2, FileText, MessageSquare, Mail, Copy, X, Loader, AlertTriangle } from 'lucide-react';
-import { generateJobDescription, generateInterviewQuestions, generateEmail, detectBiasInJobDescription } from '../utils/aiAnalyzer';
+import { Wand2, FileText, MessageSquare, Mail, Copy, X, Loader, AlertTriangle, DollarSign } from 'lucide-react';
+import { generateJobDescription, generateInterviewQuestions, generateEmail, detectBiasInJobDescription, generateSalaryBenchmark } from '../utils/aiAnalyzer';
 
 /**
  * AI Araç Kiti - Üretken AI özellikleri
  * İş ilanı yazma, mülakat soruları ve e-posta oluşturma
  * AŞAMA 16
  * AŞAMA 27: Bias (önyargı) tespiti eklendi
+ * AŞAMA 28: Maaş kıyaslama eklendi
  */
 function AIToolkit({ candidate, onClose }) {
     const [activeTab, setActiveTab] = useState('job'); // job, questions, email
@@ -19,6 +20,8 @@ function AIToolkit({ candidate, onClose }) {
     const [responsibility3, setResponsibility3] = useState('');
     const [jobDescription, setJobDescription] = useState('');
     const [biasWarnings, setBiasWarnings] = useState([]); // AŞAMA 27: Bias uyarıları
+    const [salaryBenchmark, setSalaryBenchmark] = useState(null); // AŞAMA 28: Maaş kıyaslama
+    const [benchmarkLocation, setBenchmarkLocation] = useState('İstanbul'); // AŞAMA 28: Lokasyon
 
     // Mülakat Soruları state
     const [jobDescForQuestions, setJobDescForQuestions] = useState('');
@@ -37,6 +40,31 @@ function AIToolkit({ candidate, onClose }) {
         { id: 'questions', label: 'Mülakat Soruları', icon: MessageSquare },
         { id: 'email', label: 'E-posta Yazarı', icon: Mail }
     ];
+
+    // Maaş Kıyaslama - AŞAMA 28
+    const handleSalaryBenchmark = async () => {
+        if (!positionTitle.trim()) {
+            alert('Lütfen pozisyon adını girin.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            console.log('💰 Maaş kıyaslaması yapılıyor...');
+            const result = await generateSalaryBenchmark(positionTitle, benchmarkLocation);
+            if (result.success) {
+                setSalaryBenchmark(result);
+                console.log(`✅ Maaş aralığı: ${result.minSalary} - ${result.maxSalary} ${result.currency}`);
+            } else {
+                alert(result.message || 'Maaş kıyaslaması yapılamadı.');
+            }
+        } catch (error) {
+            console.error('Maaş kıyaslama hatası:', error);
+            alert('Bir hata oluştu.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // İş İlanı Oluştur
     const handleGenerateJobDescription = async () => {
@@ -179,16 +207,102 @@ function AIToolkit({ candidate, onClose }) {
                                 </p>
                             </div>
 
-                            <div>
-                                <label className="text-gray-300 text-sm mb-2 block font-medium">Pozisyon Adı</label>
-                                <input
-                                    type="text"
-                                    value={positionTitle}
-                                    onChange={(e) => setPositionTitle(e.target.value)}
-                                    placeholder="Örn: Senior Full Stack Developer"
-                                    className="w-full px-4 py-2 bg-slate-700/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="md:col-span-2">
+                                    <label className="text-gray-300 text-sm mb-2 block font-medium">Pozisyon Adı</label>
+                                    <input
+                                        type="text"
+                                        value={positionTitle}
+                                        onChange={(e) => setPositionTitle(e.target.value)}
+                                        placeholder="Örn: Senior Full Stack Developer"
+                                        className="w-full px-4 py-2 bg-slate-700/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-gray-300 text-sm mb-2 block font-medium">Lokasyon</label>
+                                    <select
+                                        value={benchmarkLocation}
+                                        onChange={(e) => setBenchmarkLocation(e.target.value)}
+                                        className="w-full px-4 py-2 bg-slate-700/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                                    >
+                                        <option value="İstanbul">İstanbul</option>
+                                        <option value="Ankara">Ankara</option>
+                                        <option value="İzmir">İzmir</option>
+                                        <option value="Bursa">Bursa</option>
+                                        <option value="Antalya">Antalya</option>
+                                        <option value="Türkiye">Türkiye (Genel)</option>
+                                    </select>
+                                </div>
                             </div>
+
+                            {/* Maaş Kıyaslama Butonu - AŞAMA 28 */}
+                            <button
+                                onClick={handleSalaryBenchmark}
+                                disabled={loading}
+                                className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader className="w-5 h-5 animate-spin" />
+                                        Analiz ediliyor...
+                                    </>
+                                ) : (
+                                    <>
+                                        <DollarSign className="w-5 h-5" />
+                                        Piyasa Maaş Aralığını Kıyasla
+                                    </>
+                                )}
+                            </button>
+
+                            {/* Maaş Kıyaslama Sonuçları - AŞAMA 28 */}
+                            {salaryBenchmark && (
+                                <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-lg p-5">
+                                    <div className="flex items-center gap-2 text-green-300 font-bold text-lg mb-3">
+                                        <DollarSign className="w-6 h-6" />
+                                        <span>Piyasa Maaş Aralığı</span>
+                                    </div>
+
+                                    <div className="bg-slate-800/50 rounded-lg p-4 mb-4">
+                                        <div className="text-center">
+                                            <p className="text-gray-400 text-sm mb-2">Tahmini Brüt Aylık Maaş</p>
+                                            <p className="text-white text-3xl font-bold">
+                                                {salaryBenchmark.minSalary.toLocaleString('tr-TR')} - {salaryBenchmark.maxSalary.toLocaleString('tr-TR')} ₺
+                                            </p>
+                                            <p className="text-gray-400 text-xs mt-1">
+                                                {benchmarkLocation} • {new Date().getFullYear()}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div className="bg-slate-700/30 rounded-lg p-3">
+                                            <p className="text-purple-300 text-sm font-semibold mb-2">📊 Açıklama:</p>
+                                            <p className="text-gray-300 text-sm">{salaryBenchmark.explanation}</p>
+                                        </div>
+
+                                        {salaryBenchmark.factors && salaryBenchmark.factors.length > 0 && (
+                                            <div className="bg-slate-700/30 rounded-lg p-3">
+                                                <p className="text-blue-300 text-sm font-semibold mb-2">🔍 Dikkate Alınan Faktörler:</p>
+                                                <ul className="space-y-1">
+                                                    {salaryBenchmark.factors.map((factor, idx) => (
+                                                        <li key={idx} className="text-gray-300 text-sm flex items-start gap-2">
+                                                            <span className="text-blue-400 mt-0.5">•</span>
+                                                            <span>{factor}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+
+                                        {salaryBenchmark.recommendation && (
+                                            <div className="bg-slate-700/30 rounded-lg p-3">
+                                                <p className="text-green-300 text-sm font-semibold mb-2">💡 Tavsiye:</p>
+                                                <p className="text-gray-300 text-sm">{salaryBenchmark.recommendation}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="space-y-2">
                                 <label className="text-gray-300 text-sm font-medium block">Ana Sorumluluklar</label>
