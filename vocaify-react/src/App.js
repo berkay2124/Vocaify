@@ -15,6 +15,7 @@ import Analytics from './tabs/Analytics';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Billing from './pages/Billing';
+import Sourcing from './pages/Sourcing';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
 import './App.css';
@@ -159,6 +160,8 @@ function AppContent() {
                 return <Employees />;
             case 'search':
                 return <Search />;
+            case 'sourcing':
+                return <Sourcing />;
             case 'analytics':
                 return <Analytics />;
             case 'billing':
