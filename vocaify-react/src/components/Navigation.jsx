@@ -26,6 +26,7 @@ function Navigation() {
         { id: 'surveys', label: 'Bağlılık Anketleri', icon: PieChart },
         { id: 'internaljobs', label: 'İç İlanlar', icon: Briefcase },
         { id: 'knowledgebase', label: 'Bilgi Bankası', icon: BookOpen },
+        { id: 'reports', label: 'Özel Raporlar', icon: BarChart3 },
         { id: 'integrations', label: 'Entegrasyonlar', icon: Link2 },
         { id: 'billing', label: t('navigation.billing'), icon: CreditCard },
         { id: 'superadmin', label: 'Süper Admin', icon: Shield }

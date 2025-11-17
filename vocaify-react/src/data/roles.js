@@ -280,6 +280,7 @@ export function canViewNavigationTab(role, tabId) {
         'surveys': [PERMISSIONS.VIEW_ALL_EMPLOYEES, PERMISSIONS.VIEW_DEPARTMENT_EMPLOYEES], // Admin/Manager için
         'internaljobs': [PERMISSIONS.VIEW_ALL_EMPLOYEES, PERMISSIONS.VIEW_DEPARTMENT_EMPLOYEES], // Admin/Manager için iç ilanlar
         'knowledgebase': [PERMISSIONS.VIEW_ALL_EMPLOYEES, PERMISSIONS.VIEW_DEPARTMENT_EMPLOYEES], // Admin/Manager için bilgi bankası
+        'reports': [PERMISSIONS.VIEW_ANALYTICS], // Admin/Manager için özel raporlar
         'integrations': [PERMISSIONS.MANAGE_SETTINGS], // Admin için
         'billing': [PERMISSIONS.VIEW_BILLING],
         'superadmin': [PERMISSIONS.VIEW_ALL_CUSTOMERS] // Sadece Super Admin
