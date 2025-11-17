@@ -13,7 +13,8 @@ import Search from './tabs/Search';
 import Analytics from './tabs/Analytics';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import { localAnalyzeCV } from './utils/helpers';
+import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
+import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
 import './App.css';
 
 /**
@@ -35,66 +36,114 @@ function ProtectedRoute({ children }) {
  * Ana uygulama içeriğini render eder (giriş yapılmış kullanıcılar için)
  */
 function AppContent() {
-    const { activeTab, loading, setLoading, setCandidates, candidates } = useApp();
+    const { activeTab, loading, setLoading, addCandidate } = useApp();
 
-    // CV yükleme handler'ı
-    const handleCVUpload = (event) => {
+    // CV yükleme handler'ı - Gerçek AI analizi ile
+    const handleCVUpload = async (event) => {
         const files = Array.from(event.target.files);
+
+        if (files.length === 0) return;
+
         setLoading(true);
 
-        const newCandidatesList = [];
-
-        setTimeout(() => {
-            for (const file of files) {
-                const analysis = localAnalyzeCV(file.name);
-                const newCandidate = {
-                    id: 'CND-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                    name: analysis.name,
-                    email: analysis.email,
-                    phone: analysis.phone,
-                    cvText: `[Simüle edilmiş CV metni: ${file.name}]`,
-                    analysis: analysis,
-                    status: 'aday',
-                    uploadDate: new Date().toISOString(),
-                    platform: 'Manuel Yükleme',
-                    evaluations: [],
-                    kpiScores: {},
-                    totalKpiScore: 0,
-                    interviewNotes: '',
-                    hrNotes: [],
-                    decision: '',
-                    decisionBy: '',
-                    decisionDate: '',
-                    decisionReason: '',
-                    offerDetails: {
-                        position: analysis.position || '',
-                        salary: '',
-                        benefits: '',
-                        offerSent: false,
-                        offerAccepted: null,
-                        startDate: ''
-                    },
-                    documents: [{
-                        id: Date.now(),
-                        name: file.name,
-                        type: 'CV',
-                        uploadDate: new Date().toISOString()
-                    }],
-                    trainings: [],
-                    surveys: [],
-                    statusHistory: [{
-                        status: 'aday',
-                        date: new Date().toISOString(),
-                        note: 'Aday oluşturuldu'
-                    }]
-                };
-                newCandidatesList.push(newCandidate);
+        try {
+            // AI yapılandırma durumu kontrolü
+            if (!isAIConfigured()) {
+                console.warn('⚠️ Anthropic API key yapılandırılmamış. Demo modu kullanılıyor.');
             }
 
-            setCandidates([...newCandidatesList, ...candidates]);
+            for (const file of files) {
+                try {
+                    // 1. Dosya validasyonu
+                    if (!validateFileType(file)) {
+                        alert(`${file.name}: Desteklenmeyen dosya formatı. Lütfen PDF veya DOCX yükleyin.`);
+                        continue;
+                    }
+
+                    if (!validateFileSize(file)) {
+                        alert(`${file.name}: Dosya boyutu çok büyük (maksimum 5MB).`);
+                        continue;
+                    }
+
+                    // 2. CV'den metin çıkar
+                    console.log(`📄 ${file.name} işleniyor...`);
+                    const cvText = await extractTextFromCV(file);
+
+                    if (!cvText || cvText.trim().length === 0) {
+                        alert(`${file.name}: CV'den metin çıkarılamadı.`);
+                        continue;
+                    }
+
+                    // 3. AI ile analiz et
+                    console.log(`🤖 AI analizi yapılıyor...`);
+                    const analysis = await analyzeCVWithAI(cvText);
+
+                    // 4. Yeni aday oluştur
+                    const newCandidate = {
+                        id: 'CND-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                        name: analysis.name,
+                        email: analysis.email,
+                        phone: analysis.phone,
+                        cvText: cvText,
+                        analysis: {
+                            skills: analysis.skills,
+                            experience: `${analysis.experience_years} yıl`,
+                            summary: analysis.summary,
+                            aiRecommendation: analysis.aiRecommendation,
+                            position: analysis.skills[0] || 'Genel'
+                        },
+                        status: 'aday',
+                        uploadDate: new Date().toISOString(),
+                        platform: 'Manuel Yükleme (AI)',
+                        evaluations: [],
+                        kpiScores: {},
+                        totalKpiScore: 0,
+                        interviewNotes: '',
+                        hrNotes: [],
+                        decision: '',
+                        decisionBy: '',
+                        decisionDate: '',
+                        decisionReason: '',
+                        offerDetails: {
+                            position: analysis.skills[0] || '',
+                            salary: '',
+                            benefits: '',
+                            offerSent: false,
+                            offerAccepted: null,
+                            startDate: ''
+                        },
+                        documents: [{
+                            id: Date.now(),
+                            name: file.name,
+                            type: 'CV',
+                            uploadDate: new Date().toISOString()
+                        }],
+                        trainings: [],
+                        surveys: [],
+                        statusHistory: [{
+                            status: 'aday',
+                            date: new Date().toISOString(),
+                            note: 'AI ile analiz edildi ve oluşturuldu'
+                        }]
+                    };
+
+                    // 5. Firestore'a kaydet
+                    await addCandidate(newCandidate);
+                    console.log(`✅ ${analysis.name} başarıyla eklendi!`);
+
+                } catch (fileError) {
+                    console.error(`${file.name} işlenirken hata:`, fileError);
+                    alert(`${file.name} işlenirken hata oluştu: ${fileError.message}`);
+                }
+            }
+
+        } catch (error) {
+            console.error('CV yükleme hatası:', error);
+            alert('CV yükleme sırasında bir hata oluştu.');
+        } finally {
             setLoading(false);
             event.target.value = '';
-        }, 1000);
+        }
     };
 
     // Aktif sekmeyi render et
