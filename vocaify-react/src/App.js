@@ -28,6 +28,7 @@ import KnowledgeBase from './pages/KnowledgeBase';
 import ReportBuilder from './pages/ReportBuilder';
 import GamificationSettings from './pages/GamificationSettings';
 import KudosFeed from './pages/KudosFeed';
+import StrategicModeling from './pages/StrategicModeling';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
@@ -207,6 +208,8 @@ function AppContent() {
                 return <GamificationSettings />;
             case 'kudosfeed':
                 return <KudosFeed />;
+            case 'strategicmodeling':
+                return <StrategicModeling />;
             default:
                 return <Dashboard />;
         }

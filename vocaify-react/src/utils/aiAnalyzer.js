@@ -1222,3 +1222,421 @@ function generateCareerPathDemo(employee, targetRole) {
             : 'Öncelikle mevcut pozisyonunuzdaki performansınızı artırın, sonra gelişim adımlarını uygulayın.'
     };
 }
+
+/**
+ * AŞAMA 32: Strategic AI Modeling - What-If Scenario Analysis
+ * İK Yöneticisinin "Ne Olur?" sorularına AI tabanlı stratejik tahminler sunar
+ * @param {string} scenarioType - Senaryo tipi (hiring_growth, salary_reduction, turnover_prediction, vb.)
+ * @param {object} scenarioParams - Senaryo parametreleri
+ * @param {object} currentData - Mevcut şirket verileri (çalışanlar, bütçe, KPI'lar)
+ * @returns {object} - Tahmin sonuçları, grafikler, stratejik öneriler
+ */
+export async function analyzeStrategicScenario(scenarioType, scenarioParams, currentData) {
+    console.log('🎯 Strategic Scenario Analysis başlatılıyor...');
+    console.log('Senaryo Tipi:', scenarioType);
+    console.log('Parametreler:', scenarioParams);
+
+    try {
+        // CLAUDE API KEY kontrolü
+        const CLAUDE_API_KEY = import.meta.env.VITE_CLAUDE_API_KEY;
+
+        if (!CLAUDE_API_KEY) {
+            console.warn('⚠️ Claude API Key bulunamadı, demo moda geçiliyor...');
+            return analyzeStrategicScenarioDemo(scenarioType, scenarioParams, currentData);
+        }
+
+        // Senaryo tipine göre prompt oluştur
+        const prompt = buildScenarioPrompt(scenarioType, scenarioParams, currentData);
+
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': CLAUDE_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: 2000,
+                temperature: 0.7,
+                messages: [{
+                    role: 'user',
+                    content: prompt
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Claude API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const analysisText = data.content[0].text;
+
+        console.log('✅ Claude API analizi tamamlandı');
+
+        // JSON çıktısını parse et
+        const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const result = JSON.parse(jsonMatch[0]);
+            return {
+                success: true,
+                scenarioType,
+                ...result,
+                aiGenerated: true,
+                timestamp: new Date().toISOString()
+            };
+        } else {
+            throw new Error('Claude yanıtı parse edilemedi');
+        }
+
+    } catch (error) {
+        console.error('❌ Strategic Scenario Analysis hatası:', error);
+        console.log('⚠️ Demo moda geçiliyor...');
+        return analyzeStrategicScenarioDemo(scenarioType, scenarioParams, currentData);
+    }
+}
+
+/**
+ * Senaryo tipine göre Claude için prompt oluşturur
+ */
+function buildScenarioPrompt(scenarioType, params, currentData) {
+    const baseContext = `
+Mevcut Şirket Durumu:
+- Toplam Çalışan Sayısı: ${currentData.totalEmployees || 0}
+- Ortalama Maaş: ${currentData.averageSalary || 0} ₺
+- Aylık İK Bütçesi: ${currentData.monthlyBudget || 0} ₺
+- Yıllık Turnover Oranı: ${currentData.turnoverRate || 0}%
+- Ortalama Performans Skoru: ${currentData.avgPerformance || 0}/100
+- Açık Pozisyon Sayısı: ${currentData.openPositions || 0}
+    `.trim();
+
+    let scenarioQuestion = '';
+
+    switch (scenarioType) {
+        case 'hiring_growth':
+            scenarioQuestion = `
+Senaryo: Ekibi ${params.growthPercentage}% büyütmek (${params.targetDepartment || 'tüm şirket'})
+
+Sorular:
+1. Tahmini toplam işe alım maliyeti? (maaş + işe alım süreci maliyeti)
+2. Kaç ay sürer?
+3. Başarı olasılığı nedir? (piyasa koşulları, bütçe yeterliliği)
+4. Riskler ve zorluklar neler?
+5. Strateji önerileri?
+            `.trim();
+            break;
+
+        case 'salary_reduction':
+            scenarioQuestion = `
+Senaryo: Maaşları piyasanın ${params.reductionPercentage}% altına çekmek
+
+Sorular:
+1. Tahmini personel ayrılma (churn) oranı artışı?
+2. Hangi departmanlar/kıdemlerde en fazla risk var?
+3. Kaç kişi ayrılabilir?
+4. Uzun vadeli maliyet tasarrufu vs. kayıp analizi?
+5. Alternatif stratejiler?
+            `.trim();
+            break;
+
+        case 'turnover_prediction':
+            scenarioQuestion = `
+Senaryo: Önümüzdeki ${params.timeframe || 6} ay için turnover tahmini
+
+Sorular:
+1. Kaç kişi ayrılabilir?
+2. Hangi departmanlarda risk yüksek?
+3. Tahmini maliyet etkisi? (yeni işe alım + bilgi kaybı)
+4. Önleyici aksiyonlar?
+            `.trim();
+            break;
+
+        case 'performance_boost':
+            scenarioQuestion = `
+Senaryo: ${params.targetDepartment || 'Tüm şirket'} performansını ${params.boostPercentage}% artırma hedefi
+
+Sorular:
+1. Hangi eğitim/gelişim programları gerekli?
+2. Tahmini süre ve maliyet?
+3. Başarı olasılığı?
+4. Ölçülebilir metrikler?
+            `.trim();
+            break;
+
+        default:
+            scenarioQuestion = params.customQuestion || 'Genel stratejik analiz yapın.';
+    }
+
+    return `
+Sen bir İnsan Kaynakları Stratejisti ve Veri Bilimcisin. Şirket verilerini analiz edip "What-If" senaryoları için tahminlerde bulunuyorsun.
+
+${baseContext}
+
+${scenarioQuestion}
+
+GÖREV:
+Yukarıdaki senaryoyu analiz et ve aşağıdaki formatta JSON çıktısı ver:
+
+{
+    "summary": "2-3 cümlelik özet (stratejik sonuç)",
+    "estimatedCost": 250000,
+    "estimatedCostCurrency": "₺",
+    "estimatedTime": "4-6 ay",
+    "successProbability": "Yüksek/Orta/Düşük",
+    "successProbabilityScore": 75,
+    "keyMetrics": [
+        {"label": "Toplam Maliyet", "value": "250K ₺", "trend": "increase"},
+        {"label": "Süre", "value": "4-6 ay", "trend": "neutral"},
+        {"label": "Risk Seviyesi", "value": "Orta", "trend": "warning"}
+    ],
+    "risks": [
+        "Risk 1: Piyasada yeterli aday bulunamayabilir",
+        "Risk 2: Bütçe aşımı riski (%20 buffer gerekli)"
+    ],
+    "opportunities": [
+        "Fırsat 1: Erken harekette rekabet avantajı",
+        "Fırsat 2: Yeni yeteneklerle inovasyon artışı"
+    ],
+    "recommendations": [
+        "Öneri 1: Önce kritik pozisyonlardan başlayın",
+        "Öneri 2: Referans işe alımlara %20 bonus verin",
+        "Öneri 3: Onboarding sürecini optimize edin"
+    ],
+    "timeline": [
+        {"phase": "Planlama", "duration": "2 hafta"},
+        {"phase": "İlan & Sourcing", "duration": "1 ay"},
+        {"phase": "Mülakat Süreci", "duration": "2 ay"},
+        {"phase": "Onboarding", "duration": "1 ay"}
+    ]
+}
+
+SADECE JSON çıktısı ver, başka açıklama ekleme.
+    `.trim();
+}
+
+/**
+ * Demo Mode: Kural tabanlı senaryo analizi (Claude API yoksa)
+ */
+function analyzeStrategicScenarioDemo(scenarioType, params, currentData) {
+    console.log('🤖 Demo Mode: Kural tabanlı analiz yapılıyor...');
+
+    const totalEmployees = currentData.totalEmployees || 100;
+    const avgSalary = currentData.averageSalary || 50000;
+    const monthlyBudget = currentData.monthlyBudget || totalEmployees * avgSalary;
+
+    let result = {
+        success: true,
+        scenarioType,
+        aiGenerated: false,
+        timestamp: new Date().toISOString()
+    };
+
+    switch (scenarioType) {
+        case 'hiring_growth': {
+            const growthPct = params.growthPercentage || 100;
+            const newHires = Math.round((totalEmployees * growthPct) / 100);
+            const hiringCostPerPerson = avgSalary * 1.5; // İşe alım maliyeti + ilk maaş
+            const totalCost = newHires * hiringCostPerPerson;
+            const months = Math.ceil(newHires / 5); // Ayda 5 kişi işe alım varsayımı
+
+            result = {
+                ...result,
+                summary: `${newHires} kişi işe alarak ekibi ${growthPct}% büyütmek yaklaşık ${Math.round(totalCost / 1000)}K ₺ maliyetle ${months} ayda gerçekleştirilebilir.`,
+                estimatedCost: totalCost,
+                estimatedCostCurrency: '₺',
+                estimatedTime: `${months} ay`,
+                successProbability: growthPct > 150 ? 'Düşük' : growthPct > 50 ? 'Orta' : 'Yüksek',
+                successProbabilityScore: growthPct > 150 ? 40 : growthPct > 50 ? 65 : 85,
+                keyMetrics: [
+                    { label: 'Yeni İşe Alım', value: `${newHires} kişi`, trend: 'increase' },
+                    { label: 'Toplam Maliyet', value: `${Math.round(totalCost / 1000)}K ₺`, trend: 'increase' },
+                    { label: 'Tahmini Süre', value: `${months} ay`, trend: 'neutral' },
+                    { label: 'Aylık İşe Alım Hızı', value: '~5 kişi/ay', trend: 'neutral' }
+                ],
+                risks: [
+                    'Piyasada yeterli nitelikli aday bulunamayabilir',
+                    'İşe alım süreci gecikmeler yaşayabilir',
+                    `Bütçe aşımı riski (%${growthPct > 100 ? 25 : 15} buffer önerilir)`,
+                    'Onboarding kalitesi düşebilir'
+                ],
+                opportunities: [
+                    'Yeni yeteneklerle inovasyon hızlanır',
+                    'Pazar payı artışı fırsatı',
+                    'Erken harekette rekabet avantajı'
+                ],
+                recommendations: [
+                    'Önce kritik pozisyonları doldurun',
+                    'Referans işe alımlara %20 bonus verin',
+                    'Onboarding programını güçlendirin',
+                    'Mülakat sürecini paralelleştirin'
+                ],
+                timeline: [
+                    { phase: 'Planlama & JD Hazırlık', duration: '2 hafta' },
+                    { phase: 'İlan Yayını & Sourcing', duration: '1 ay' },
+                    { phase: 'Mülakat & Değerlendirme', duration: `${months - 2} ay` },
+                    { phase: 'Teklif & Onboarding', duration: '1 ay' }
+                ]
+            };
+            break;
+        }
+
+        case 'salary_reduction': {
+            const reductionPct = params.reductionPercentage || 10;
+            const churnIncrease = reductionPct * 2; // Her %10 kesintide %20 churn artışı (varsayım)
+            const potentialLeavers = Math.round((totalEmployees * churnIncrease) / 100);
+            const savingsPerMonth = (totalEmployees * avgSalary * reductionPct) / 100;
+            const replacementCost = potentialLeavers * avgSalary * 2; // Yeni işe alım maliyeti
+
+            result = {
+                ...result,
+                summary: `Maaşları %${reductionPct} düşürmek ${Math.round(savingsPerMonth / 1000)}K ₺/ay tasarruf sağlar, ancak ~${potentialLeavers} kişi ayrılma riski taşır. Uzun vadede maliyeti artırabilir.`,
+                estimatedCost: -savingsPerMonth * 12, // Negatif = tasarruf
+                estimatedCostCurrency: '₺',
+                estimatedTime: 'Anlık etki, 6 ay içinde tam etki',
+                successProbability: 'Düşük',
+                successProbabilityScore: 25,
+                keyMetrics: [
+                    { label: 'Aylık Tasarruf', value: `${Math.round(savingsPerMonth / 1000)}K ₺`, trend: 'decrease' },
+                    { label: 'Tahmini Ayrılma', value: `${potentialLeavers} kişi`, trend: 'increase' },
+                    { label: 'Churn Artışı', value: `%${churnIncrease}`, trend: 'warning' },
+                    { label: 'Yenileme Maliyeti', value: `${Math.round(replacementCost / 1000)}K ₺`, trend: 'increase' }
+                ],
+                risks: [
+                    `En iyi performans gösterenler öncelikle ayrılır (Top %20 risk)`,
+                    'Takım morali düşer, verimlilik azalır',
+                    'Yenileme maliyeti tasarruftan fazla olabilir',
+                    'Şirket itibarı zarar görür'
+                ],
+                opportunities: [
+                    'Kısa vadede nakit akışı iyileşir',
+                    'Alternatif ödüllendirme modelleri test edilebilir'
+                ],
+                recommendations: [
+                    '⚠️ ÖNERİLMEZ: Bu strateji uzun vadede zararlıdır',
+                    'Alternatif: Yan hakları güçlendirin (maaş yerine)',
+                    'Alternatif: Performans bazlı bonuslarla dengeleyin',
+                    'Eğer zorunluysa: Sadece yeni işe alımlara uygulayın'
+                ],
+                timeline: [
+                    { phase: 'Karar & İletişim', duration: '1 hafta' },
+                    { phase: 'İlk Ayrılmalar', duration: '1-2 ay' },
+                    { phase: 'Pik Churn Dönemi', duration: '3-6 ay' },
+                    { phase: 'Stabilizasyon', duration: '6+ ay' }
+                ]
+            };
+            break;
+        }
+
+        case 'turnover_prediction': {
+            const timeframeMonths = params.timeframe || 6;
+            const currentTurnoverRate = currentData.turnoverRate || 15; // Yıllık %15 varsayım
+            const predictedLeavers = Math.round((totalEmployees * currentTurnoverRate * timeframeMonths) / 1200);
+            const replacementCost = predictedLeavers * avgSalary * 1.5;
+
+            result = {
+                ...result,
+                summary: `Önümüzdeki ${timeframeMonths} ayda ~${predictedLeavers} kişi ayrılma riski var. Toplam yenileme maliyeti ${Math.round(replacementCost / 1000)}K ₺ olabilir.`,
+                estimatedCost: replacementCost,
+                estimatedCostCurrency: '₺',
+                estimatedTime: `${timeframeMonths} ay`,
+                successProbability: currentTurnoverRate > 20 ? 'Yüksek Risk' : 'Orta Risk',
+                successProbabilityScore: 100 - currentTurnoverRate * 3,
+                keyMetrics: [
+                    { label: 'Tahmini Ayrılma', value: `${predictedLeavers} kişi`, trend: 'warning' },
+                    { label: 'Yenileme Maliyeti', value: `${Math.round(replacementCost / 1000)}K ₺`, trend: 'increase' },
+                    { label: 'Mevcut Turnover', value: `%${currentTurnoverRate}/yıl`, trend: currentTurnoverRate > 20 ? 'warning' : 'neutral' },
+                    { label: 'Risk Seviyesi', value: currentTurnoverRate > 20 ? 'Yüksek' : 'Orta', trend: 'warning' }
+                ],
+                risks: [
+                    'Kritik bilgi ve deneyim kaybı',
+                    'Takım dinamikleri bozulabilir',
+                    'Müşteri ilişkileri etkilenebilir',
+                    'İşe alım süreci yükü artar'
+                ],
+                opportunities: [
+                    'Retention programları ile %30 azaltma fırsatı',
+                    'Exit interview verilerinden öğrenme',
+                    'Proaktif aksiyonlarla morali artırma şansı'
+                ],
+                recommendations: [
+                    'Pulse Survey ile çalışan memnuniyetini ölçün',
+                    'Yüksek performanslılara retention bonus verin',
+                    'Kariyer gelişim planları sunun (AŞAMA 30)',
+                    'Exit interview yaparak root cause analizi yapın'
+                ],
+                timeline: [
+                    { phase: 'Erken Sinyaller (1-2 ay)', duration: '~30% ayrılır' },
+                    { phase: 'Ana Dalga (3-4 ay)', duration: '~50% ayrılır' },
+                    { phase: 'Geç Dönem (5-6 ay)', duration: '~20% ayrılır' }
+                ]
+            };
+            break;
+        }
+
+        case 'performance_boost': {
+            const boostPct = params.boostPercentage || 20;
+            const trainingCostPerPerson = 5000; // Kişi başı eğitim maliyeti
+            const totalTrainingCost = totalEmployees * trainingCostPerPerson;
+            const months = Math.ceil(boostPct / 5); // Her %5 artış için 1 ay
+
+            result = {
+                ...result,
+                summary: `Performansı %${boostPct} artırmak ${Math.round(totalTrainingCost / 1000)}K ₺ eğitim yatırımı ve ${months} ay sürekli gelişim gerektirir.`,
+                estimatedCost: totalTrainingCost,
+                estimatedCostCurrency: '₺',
+                estimatedTime: `${months} ay`,
+                successProbability: boostPct > 30 ? 'Orta' : 'Yüksek',
+                successProbabilityScore: boostPct > 30 ? 60 : 80,
+                keyMetrics: [
+                    { label: 'Hedef Artış', value: `%${boostPct}`, trend: 'increase' },
+                    { label: 'Eğitim Maliyeti', value: `${Math.round(totalTrainingCost / 1000)}K ₺`, trend: 'increase' },
+                    { label: 'Tahmini Süre', value: `${months} ay`, trend: 'neutral' },
+                    { label: 'ROI Beklentisi', value: `%${boostPct * 10}`, trend: 'increase' }
+                ],
+                risks: [
+                    'Eğitimler kalıcı davranış değişikliğine dönüşmeyebilir',
+                    'İş yükü sırasında eğitim verimliliği düşebilir',
+                    'Bazı çalışanlar direniş gösterebilir'
+                ],
+                opportunities: [
+                    'Şirket kültürü güçlenir',
+                    'Çalışan bağlılığı artar',
+                    'İnovasyon ve verimlilik artar',
+                    'Rekabet avantajı sağlar'
+                ],
+                recommendations: [
+                    'Blended learning kullanın (online + yüz yüze)',
+                    'Mentoring programları başlatın',
+                    'OKR sistemini güçlendirin (AŞAMA 22)',
+                    'İlerlemeyi haftalık pulse survey ile ölçün'
+                ],
+                timeline: [
+                    { phase: 'İhtiyaç Analizi', duration: '2 hafta' },
+                    { phase: 'Eğitim Tasarımı', duration: '1 ay' },
+                    { phase: 'Uygulama & Koçluk', duration: `${months - 2} ay` },
+                    { phase: 'Ölçüm & Optimizasyon', duration: '1 ay' }
+                ]
+            };
+            break;
+        }
+
+        default:
+            result = {
+                ...result,
+                summary: 'Bilinmeyen senaryo tipi. Lütfen geçerli bir senaryo seçin.',
+                estimatedCost: 0,
+                estimatedCostCurrency: '₺',
+                estimatedTime: 'Belirsiz',
+                successProbability: 'Bilinmiyor',
+                successProbabilityScore: 0,
+                keyMetrics: [],
+                risks: ['Senaryo tanımlı değil'],
+                opportunities: [],
+                recommendations: ['Geçerli bir senaryo tipi seçin'],
+                timeline: []
+            };
+    }
+
+    return result;
+}

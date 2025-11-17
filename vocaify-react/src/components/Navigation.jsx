@@ -27,6 +27,7 @@ function Navigation() {
         { id: 'internaljobs', label: 'İç İlanlar', icon: Briefcase },
         { id: 'knowledgebase', label: 'Bilgi Bankası', icon: BookOpen },
         { id: 'reports', label: 'Özel Raporlar', icon: BarChart3 },
+        { id: 'strategicmodeling', label: 'Stratejik Modelleme', icon: TrendingUp },
         { id: 'gamification', label: 'Oyunlaştırma', icon: Trophy },
         { id: 'kudosfeed', label: 'Kudos Akışı', icon: Heart },
         { id: 'integrations', label: 'Entegrasyonlar', icon: Link2 },
