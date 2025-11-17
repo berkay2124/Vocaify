@@ -675,3 +675,170 @@ SADECE JSON döndür.`;
         }
     }
 }
+
+/**
+ * AŞAMA 27: Bias (Önyargı) Tespiti
+ * İş ilanı metnini önyargılı dil, cinsiyetçilik ve yaş/etnik ayrımcılık açısından tarar
+ * @param {string} jobDescriptionText - İş ilanı metni
+ * @returns {Promise<Object>} Tespit edilen bias uyarıları
+ */
+export async function detectBiasInJobDescription(jobDescriptionText) {
+    if (!jobDescriptionText || jobDescriptionText.trim().length === 0) {
+        return {
+            success: false,
+            message: 'İş ilanı metni gereklidir.'
+        };
+    }
+
+    if (!ANTHROPIC_API_KEY) {
+        console.warn('Anthropic API key bulunamadı. Demo bias kontrolü kullanılıyor.');
+        return detectBiasDemo(jobDescriptionText);
+    }
+
+    try {
+        const prompt = `Sen bir İnsan Kaynakları etik danışmanısın. Görevi: İş ilanlarını "önyargı" (bias), "cinsiyetçi dil", "yaş ayrımcılığı" ve "kapsayıcı olmayan ifadeler" açısından taramak.
+
+İŞ İLANI METNİ:
+${jobDescriptionText}
+
+GÖREV:
+Bu iş ilanını incele ve aşağıdaki tür önyargıları tespit et:
+
+1. **Cinsiyetçi Dil**: "rockstar developer", "ninja coder", "genç ve dinamik", "baba gibi lider", vb.
+2. **Yaş Ayrımcılığı**: "genç", "dinamik", "enerji dolu", "yeni mezun", vb.
+3. **Etnik/Kültürel Önyargı**: Belirli etnik/kültürel gruplara işaret eden ifadeler
+4. **Fiziksel Özellik Vurgusu**: Görünüşle ilgili beklentiler
+5. **Aile Durumu Varsayımları**: "Bekâr", "esnek çalışma saatleri" (dolaylı olarak aile yükümlülüğü olmayan kişi arayışı), vb.
+
+Eğer önyargı tespit edersen, şu bilgileri ver:
+- phrase: Önyargılı ifade
+- reason: Neden önyargılı? (Kısa açıklama)
+- alternative: Daha kapsayıcı alternatif öneri
+
+ZORUNLU FORMAT:
+JSON formatında döndür:
+{
+  "warnings": [
+    {
+      "phrase": "genç ve dinamik",
+      "reason": "Yaş ayrımcılığı içerir, deneyimli adayları dışlar",
+      "alternative": "enerji dolu ve hızlı öğrenen"
+    },
+    {
+      "phrase": "rockstar developer",
+      "reason": "Cinsiyet stereotipi içerir, kadın adayları caydırabilir",
+      "alternative": "deneyimli geliştirici" veya "yetenekli geliştirici"
+    }
+  ]
+}
+
+ÖNEMLI:
+- Eğer HİÇBİR önyargı tespit edilmezse, boş array döndür: {"warnings": []}
+- SADECE JSON döndür, başka metin ekleme
+- Gerçekten sorunlu ifadeleri bul, abartma`;
+
+        const response = await fetch(ANTHROPIC_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                max_tokens: 2000,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API isteği başarısız: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.content[0].text;
+
+        // JSON'u parse et
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            console.warn('AI yanıtında JSON bulunamadı, demo modu kullanılıyor.');
+            return detectBiasDemo(jobDescriptionText);
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+
+        return {
+            success: true,
+            warnings: parsedData.warnings || []
+        };
+
+    } catch (error) {
+        console.error('Bias tespiti hatası:', error);
+        console.warn('AI bias kontrolü başarısız, demo modu kullanılıyor.');
+        return detectBiasDemo(jobDescriptionText);
+    }
+}
+
+/**
+ * Demo/Fallback modu - Basit regex ile bias tespiti
+ * @param {string} text - İş ilanı metni
+ * @returns {Object} Demo bias uyarıları
+ */
+function detectBiasDemo(text) {
+    const warnings = [];
+    const lowerText = text.toLowerCase();
+
+    // Yaygın önyargılı ifadeler
+    const biasPatterns = [
+        {
+            keywords: ['genç', 'young', 'dinamik'],
+            phrase: 'genç ve dinamik',
+            reason: 'Yaş ayrımcılığı içerir, deneyimli adayları dışlar',
+            alternative: 'enerji dolu ve hızlı öğrenen'
+        },
+        {
+            keywords: ['rockstar', 'ninja', 'guru', 'wizard'],
+            phrase: 'rockstar/ninja developer',
+            reason: 'Cinsiyet stereotipi içerir, kadın adayları caydırabilir',
+            alternative: 'deneyimli geliştirici'
+        },
+        {
+            keywords: ['agresif', 'aggressive'],
+            phrase: 'agresif satış',
+            reason: 'Maskülen özellikleri vurgular, kapsayıcı değil',
+            alternative: 'hedef odaklı satış'
+        },
+        {
+            keywords: ['bekâr', 'single', 'evli', 'married'],
+            phrase: 'bekâr/evli tercihi',
+            reason: 'Aile durumu ayrımcılığı, yasalara aykırı',
+            alternative: 'Kaldırılmalı - aile durumu sorgulanmamalı'
+        },
+        {
+            keywords: ['native speaker', 'ana dil', 'anadil türkçe'],
+            phrase: 'anadili türkçe',
+            reason: 'Etnik/kültürel ayrımcılık içerebilir',
+            alternative: 'akıcı Türkçe konuşabilen'
+        }
+    ];
+
+    biasPatterns.forEach(pattern => {
+        if (pattern.keywords.some(keyword => lowerText.includes(keyword))) {
+            warnings.push({
+                phrase: pattern.phrase,
+                reason: pattern.reason,
+                alternative: pattern.alternative
+            });
+        }
+    });
+
+    return {
+        success: true,
+        warnings
+    };
+}

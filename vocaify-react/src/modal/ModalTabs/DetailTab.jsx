@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, Briefcase, Save, UserPlus } from 'lucide-react';
+import { Mail, Phone, Briefcase, Save, UserPlus, EyeOff } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import RoleGuard from '../../components/RoleGuard';
@@ -8,8 +8,9 @@ import { EMPLOYEE_STAGES } from '../../config/constants';
 /**
  * Modal'daki Detaylar sekmesini render eder
  * Kişi bilgileri, AI özeti, mülakat ve HR notlarını gösterir
+ * AŞAMA 27: Bias-Free Mode desteği
  */
-function DetailTab({ person }) {
+function DetailTab({ person, biasFreeMode = false }) {
     const { candidates, employees, setCandidates, setEmployees } = useApp();
     const { currentUser } = useAuth();
     const [interviewNotes, setInterviewNotes] = useState(person.interviewNotes || '');
@@ -84,6 +85,20 @@ function DetailTab({ person }) {
 
     return (
         <div className="space-y-6">
+            {/* Bias-Free Mode Banner - AŞAMA 27 */}
+            {biasFreeMode && (
+                <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+                    <div className="flex items-center gap-2 text-green-300 font-medium mb-2">
+                        <EyeOff className="w-5 h-5" />
+                        <span>Tarafsız Mod Aktif</span>
+                    </div>
+                    <p className="text-gray-300 text-sm">
+                        Adayın isim, fotoğraf, yaş ve cinsiyet bilgileri gizlendi.
+                        Değerlendirmenizi yalnızca yetenekler, deneyim ve yetkinlikler üzerinden yapın.
+                    </p>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-slate-700/50 rounded-xl">
                     <p className="text-gray-400 text-sm mb-2 flex items-center gap-2">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { XCircle, Eye, Award, DollarSign, FileStack, Zap, History, TrendingUp, Wand2, Calendar } from 'lucide-react';
+import { XCircle, Eye, Award, DollarSign, FileStack, Zap, History, TrendingUp, Wand2, Calendar, EyeOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { canViewModalTab } from '../data/roles';
@@ -19,12 +19,14 @@ import InterviewScheduler from '../components/InterviewScheduler';
  * Aday/personel detay modal'ı, sekme başlıkları ve içeriğini gösterir
  * AŞAMA 16: AI Araç Kiti entegrasyonu
  * AŞAMA 17: Mülakat Planlama entegrasyonu
+ * AŞAMA 27: Bias-Free Mode (Tarafsız Mod) entegrasyonu
  */
 function Modal() {
     const { showModal, selectedPerson, modalTab, setModalTab, closeModal } = useApp();
     const { currentUser } = useAuth();
     const [showAIToolkit, setShowAIToolkit] = useState(false);
     const [showInterviewScheduler, setShowInterviewScheduler] = useState(false);
+    const [biasFreeMode, setBiasFreeMode] = useState(false); // AŞAMA 27: Tarafsız Mod
 
     if (!showModal || !selectedPerson) return null;
 
@@ -49,7 +51,7 @@ function Modal() {
     const getModalTabContent = () => {
         switch (modalTab) {
             case 'detay':
-                return <DetailTab person={person} />;
+                return <DetailTab person={person} biasFreeMode={biasFreeMode} />;
             case 'degerlendirme':
                 return <EvaluationTab person={person} />;
             case 'teklif':
@@ -76,10 +78,12 @@ function Modal() {
                 <div className="flex-shrink-0 p-6 flex justify-between items-start border-b border-purple-500/20">
                     <div className="flex items-center gap-4">
                         <div className={`w-16 h-16 ${isEmployee ? 'bg-gradient-to-br from-emerald-500 to-green-500' : 'gradient-bg'} rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-lg flex-shrink-0`}>
-                            {person.name.charAt(0)}
+                            {biasFreeMode ? '👤' : person.name.charAt(0)}
                         </div>
                         <div>
-                            <h3 className="text-2xl font-bold text-white">{person.name}</h3>
+                            <h3 className="text-2xl font-bold text-white">
+                                {biasFreeMode ? `Aday #${person.id.slice(-4)}` : person.name}
+                            </h3>
                             <p className="text-purple-300">{person.analysis.position}</p>
                             <span className={`mt-2 inline-block px-3 py-1 ${STATUS_CONFIG[person.status].color} text-white text-xs rounded-full font-medium`}>
                                 {STATUS_CONFIG[person.status].label}
@@ -87,6 +91,22 @@ function Modal() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
+                        {/* Bias-Free Mode Toggle - AŞAMA 27 */}
+                        {!isEmployee && (
+                            <button
+                                onClick={() => setBiasFreeMode(!biasFreeMode)}
+                                className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 font-medium text-sm ${
+                                    biasFreeMode
+                                        ? 'bg-green-600 text-white hover:bg-green-700'
+                                        : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                                }`}
+                                title="Tarafsız Mod - İsim, yaş, cinsiyet bilgilerini gizler"
+                            >
+                                <EyeOff className="w-4 h-4" />
+                                {biasFreeMode ? 'Tarafsız Mod: Aktif' : 'Tarafsız Mod'}
+                            </button>
+                        )}
+
                         {/* AI Asistan Butonu - AŞAMA 16 */}
                         {!isEmployee && (
                             <>

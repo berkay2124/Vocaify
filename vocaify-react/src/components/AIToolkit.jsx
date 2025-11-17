@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Wand2, FileText, MessageSquare, Mail, Copy, X, Loader } from 'lucide-react';
-import { generateJobDescription, generateInterviewQuestions, generateEmail } from '../utils/aiAnalyzer';
+import { Wand2, FileText, MessageSquare, Mail, Copy, X, Loader, AlertTriangle } from 'lucide-react';
+import { generateJobDescription, generateInterviewQuestions, generateEmail, detectBiasInJobDescription } from '../utils/aiAnalyzer';
 
 /**
  * AI Araç Kiti - Üretken AI özellikleri
  * İş ilanı yazma, mülakat soruları ve e-posta oluşturma
  * AŞAMA 16
+ * AŞAMA 27: Bias (önyargı) tespiti eklendi
  */
 function AIToolkit({ candidate, onClose }) {
     const [activeTab, setActiveTab] = useState('job'); // job, questions, email
@@ -17,6 +18,7 @@ function AIToolkit({ candidate, onClose }) {
     const [responsibility2, setResponsibility2] = useState('');
     const [responsibility3, setResponsibility3] = useState('');
     const [jobDescription, setJobDescription] = useState('');
+    const [biasWarnings, setBiasWarnings] = useState([]); // AŞAMA 27: Bias uyarıları
 
     // Mülakat Soruları state
     const [jobDescForQuestions, setJobDescForQuestions] = useState('');
@@ -50,10 +52,22 @@ function AIToolkit({ candidate, onClose }) {
         }
 
         setLoading(true);
+        setBiasWarnings([]); // Reset warnings
         try {
+            // 1. İş ilanı oluştur
             const result = await generateJobDescription(positionTitle, responsibilities);
             if (result.success) {
                 setJobDescription(result.jobDescription);
+
+                // 2. AŞAMA 27: Bias (önyargı) kontrolü yap
+                console.log('🔍 İş ilanı bias kontrolünden geçiriliyor...');
+                const biasResult = await detectBiasInJobDescription(result.jobDescription);
+                if (biasResult.success && biasResult.warnings && biasResult.warnings.length > 0) {
+                    setBiasWarnings(biasResult.warnings);
+                    console.log(`⚠️ ${biasResult.warnings.length} bias uyarısı bulundu.`);
+                } else {
+                    console.log('✅ Bias tespit edilmedi. İlan tarafsız görünüyor.');
+                }
             } else {
                 alert(result.message || 'İş ilanı oluşturulamadı.');
             }
@@ -220,21 +234,59 @@ function AIToolkit({ candidate, onClose }) {
                             </button>
 
                             {jobDescription && (
-                                <div className="bg-slate-800/50 border border-purple-500/20 rounded-lg p-4">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <p className="text-purple-300 font-medium">Oluşturulan İş İlanı:</p>
-                                        <button
-                                            onClick={() => copyToClipboard(jobDescription)}
-                                            className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-all flex items-center gap-2 text-sm"
-                                        >
-                                            <Copy className="w-4 h-4" />
-                                            Kopyala
-                                        </button>
+                                <>
+                                    {/* Bias Warnings - AŞAMA 27 */}
+                                    {biasWarnings.length > 0 && (
+                                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                                            <div className="flex items-center gap-2 text-yellow-300 font-medium mb-3">
+                                                <AlertTriangle className="w-5 h-5" />
+                                                <span>Önyargı Uyarısı ({biasWarnings.length} sorun tespit edildi)</span>
+                                            </div>
+                                            <div className="space-y-3">
+                                                {biasWarnings.map((warning, index) => (
+                                                    <div key={index} className="bg-slate-700/30 rounded-lg p-3">
+                                                        <div className="flex items-start gap-2 mb-2">
+                                                            <span className="text-red-400 font-mono text-sm">❌</span>
+                                                            <div className="flex-1">
+                                                                <p className="text-red-300 font-semibold text-sm">"{warning.phrase}"</p>
+                                                                <p className="text-gray-400 text-xs mt-1">{warning.reason}</p>
+                                                            </div>
+                                                        </div>
+                                                        {warning.alternative && (
+                                                            <div className="flex items-start gap-2 mt-2 pl-6">
+                                                                <span className="text-green-400 font-mono text-sm">✓</span>
+                                                                <div>
+                                                                    <p className="text-green-300 text-sm">
+                                                                        <strong>Öneri:</strong> "{warning.alternative}"
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <p className="text-yellow-200 text-xs mt-3">
+                                                💡 İpucu: Bu öneriler AI tarafından oluşturuldu. İlan metnini düzenleyerek daha kapsayıcı hale getirebilirsiniz.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="bg-slate-800/50 border border-purple-500/20 rounded-lg p-4">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <p className="text-purple-300 font-medium">Oluşturulan İş İlanı:</p>
+                                            <button
+                                                onClick={() => copyToClipboard(jobDescription)}
+                                                className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-all flex items-center gap-2 text-sm"
+                                            >
+                                                <Copy className="w-4 h-4" />
+                                                Kopyala
+                                            </button>
+                                        </div>
+                                        <div className="text-gray-300 text-sm whitespace-pre-wrap max-h-96 overflow-y-auto">
+                                            {jobDescription}
+                                        </div>
                                     </div>
-                                    <div className="text-gray-300 text-sm whitespace-pre-wrap max-h-96 overflow-y-auto">
-                                        {jobDescription}
-                                    </div>
-                                </div>
+                                </>
                             )}
                         </div>
                     )}
