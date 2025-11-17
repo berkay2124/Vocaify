@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare } from 'lucide-react';
+import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import MyPerformance from './MyPerformance';
 
 /**
  * Employee Self-Service Portal (ESS)
@@ -172,6 +173,7 @@ function EmployeeDashboard() {
                     {[
                         { id: 'profile', label: 'Benim Profilim', icon: User },
                         { id: 'leave', label: 'İzin Talebi', icon: Calendar },
+                        { id: 'performance', label: 'Performansım', icon: Target },
                         { id: 'payroll', label: 'Maaş Bordrosu', icon: DollarSign },
                         { id: 'tasks', label: 'Görevlerim', icon: CheckCircle }
                     ].map((tab) => {
@@ -391,6 +393,11 @@ function EmployeeDashboard() {
                                 </button>
                             </div>
                         </div>
+                    )}
+
+                    {/* Performans Bölümü */}
+                    {activeSection === 'performance' && (
+                        <MyPerformance />
                     )}
 
                     {/* Görevlerim Bölümü */}

@@ -21,6 +21,7 @@ import Feedback from './pages/Feedback';
 import Onboarding from './pages/Onboarding';
 import Integrations from './pages/Integrations';
 import EmployeeDashboard from './pages/EmployeeDashboard';
+import PerformanceAdmin from './pages/PerformanceAdmin';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
 import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
@@ -186,6 +187,8 @@ function AppContent() {
                 return <Onboarding />;
             case 'integrations':
                 return <Integrations />;
+            case 'performance':
+                return <PerformanceAdmin />;
             default:
                 return <Dashboard />;
         }
