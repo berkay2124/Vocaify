@@ -11,6 +11,13 @@ import {
     renderModalTab_Performans
 } from './modalTabs.js';
 
+/**
+ * Ana modal bileşenini render eder
+ * Aday/personel detay modal'ı, sekme başlıkları ve içeriğini gösterir
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {string} Modal HTML string'i (modal kapalıysa boş string döner)
+ */
 export function renderModal(state) {
     if (!state.showModal || !state.selectedPerson) return '';
 
@@ -78,6 +85,13 @@ export function renderModal(state) {
     `;
 }
 
+/**
+ * Aktif modal sekmesine göre ilgili içeriği döndürür
+ * Switch-case yapısıyla doğru modalTab render fonksiyonunu çağırır
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {string} Aktif sekmeye ait HTML içeriği
+ */
 function getModalTabContent(state) {
     switch (state.modalTab) {
         case 'detay':

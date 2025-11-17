@@ -42,7 +42,10 @@ const state = {
 // Initialize data module with state reference
 initDataModule(state, render);
 
-// === MAIN RENDER FUNCTION ===
+/**
+ * Ana render fonksiyonu
+ * Tüm uygulama UI'ını yeniden oluşturur ve Lucide ikonlarını başlatır
+ */
 function render() {
     const app = document.getElementById('app');
 
@@ -60,7 +63,10 @@ function render() {
     lucide.createIcons();
 }
 
-// === TAB RENDERING ===
+/**
+ * Aktif sekmeye göre ilgili tab içeriğini render eder
+ * @returns {string} Aktif tab HTML içeriği
+ */
 function renderActiveTab() {
     switch (state.activeTab) {
         case 'dashboard':
@@ -78,7 +84,12 @@ function renderActiveTab() {
     }
 }
 
-// === CV UPLOAD HANDLER ===
+/**
+ * CV dosyası yükleme işlemini yönetir
+ * Dosyaları AI ile simüle edilmiş şekilde analiz eder ve aday oluşturur
+ *
+ * @param {Event} event - File input change event
+ */
 function handleCVUpload(event) {
     const files = Array.from(event.target.files);
     state.loading = true;
@@ -141,7 +152,10 @@ function handleCVUpload(event) {
     }, 1000);
 }
 
-// === SMART SEARCH HANDLER ===
+/**
+ * AI destekli akıllı arama işlemini yönetir
+ * Adayları arama sorgusuna göre skorlar ve sıralar (lokal simülasyon)
+ */
 function handleSmartSearch() {
     if (!state.searchQuery.trim()) return;
     state.loading = true;
@@ -179,7 +193,12 @@ function handleSmartSearch() {
     }, 1000);
 }
 
-// === LIFECYCLE MANAGEMENT ===
+/**
+ * Adayı yaşam döngüsünde bir sonraki aşamaya taşır
+ * Personel aşamasına geçişte adayı employees dizisine transfer eder
+ *
+ * @param {string} candidateId - Aday ID'si
+ */
 function moveToNextStage(candidateId) {
     const candidate = state.candidates.find(c => c.id === candidateId);
     if (!candidate) return;
@@ -219,6 +238,12 @@ function moveToNextStage(candidateId) {
     closeModal();
 }
 
+/**
+ * Personeli çıkış sürecine alır (eski-personel statüsüne taşır)
+ * Kullanıcıdan onay ister ve statü geçmişine ekler
+ *
+ * @param {string} employeeId - Personel ID'si
+ */
 function moveEmployeeToExit(employeeId) {
     if (!confirm('Bu personelin çıkış işlemini başlatmak istediğinizden emin misiniz?')) return;
 
@@ -239,7 +264,12 @@ function moveEmployeeToExit(employeeId) {
     closeModal();
 }
 
-// === MODAL MANAGEMENT ===
+/**
+ * Modal'ı açar ve seçili kişiyi ayarlar
+ *
+ * @param {string} type - Modal tipi (view, evaluate, decision, vb.)
+ * @param {Object} person - Gösterilecek aday veya personel objesi
+ */
 function openModal(type, person) {
     state.modalType = type;
     state.selectedPerson = JSON.parse(JSON.stringify(person)); // Deep copy
@@ -248,6 +278,9 @@ function openModal(type, person) {
     render();
 }
 
+/**
+ * Modal'ı kapatır ve state'i temizler
+ */
 function closeModal() {
     state.showModal = false;
     state.selectedPerson = null;
@@ -255,12 +288,22 @@ function closeModal() {
     render();
 }
 
+/**
+ * Modal içindeki aktif sekmeyi değiştirir
+ *
+ * @param {string} tab - Sekme ID'si (detay, degerlendirme, teklif, vb.)
+ */
 function setModalTab(tab) {
     state.modalTab = tab;
     render();
 }
 
-// === MODAL FORM HANDLERS ===
+/**
+ * Modal içindeki formları işler ve verileri kaydeder
+ * KPI, karar, teklif, HR notu, eğitim, anket ve performans formlarını yönetir
+ *
+ * @param {Event} event - Form submit event
+ */
 function handleModalFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -382,6 +425,12 @@ function handleModalFormSubmit(event) {
     }
 }
 
+/**
+ * Özlük dosyası yükleme işlemini yönetir
+ * Dosyayı kişinin documents dizisine ekler
+ *
+ * @param {Event} event - Form submit event
+ */
 function handleDocumentUpload(event) {
     event.preventDefault();
     const fileInput = event.target.querySelector('input[type="file"]');
@@ -415,6 +464,11 @@ function handleDocumentUpload(event) {
     event.target.reset();
 }
 
+/**
+ * Teklif kabul/red durumunu günceller
+ *
+ * @param {boolean} newStatus - true (kabul) veya false (red)
+ */
 function updateOfferStatus(newStatus) {
     const person = state.candidates.find(p => p.id === state.selectedPerson.id);
     if (person) {
@@ -425,6 +479,11 @@ function updateOfferStatus(newStatus) {
     }
 }
 
+/**
+ * Modal detay sekmesindeki mülakat ve HR notlarını kaydeder
+ *
+ * @param {string} personId - Kişi ID'si
+ */
 function saveNotesFromModal(personId) {
     const notes = document.getElementById('interviewNotes').value;
     const hrNoteText = document.getElementById('hrGeneralNotes').value;
@@ -458,26 +517,49 @@ function saveNotesFromModal(personId) {
     alert('Notlar Kaydedildi!');
 }
 
-// === UTILITY FUNCTIONS ===
+/**
+ * Aktif sekmeyi değiştirir
+ *
+ * @param {string} tab - Sekme ID'si (dashboard, candidates, employees, search, analytics)
+ */
 function setActiveTab(tab) {
     state.activeTab = tab;
     render();
 }
 
+/**
+ * Aday/personel filtrelerinde statü filtresini ayarlar
+ *
+ * @param {string} status - Statü değeri (all veya spesifik statü)
+ */
 function setFilterStatus(status) {
     state.filterStatus = status;
     render();
 }
 
+/**
+ * Aday filtrelerinde platform filtresini ayarlar
+ *
+ * @param {string} platform - Platform adı (all veya spesifik platform)
+ */
 function setFilterPlatform(platform) {
     state.filterPlatform = platform;
     render();
 }
 
+/**
+ * Arama sorgusunu state'de günceller (render yapmaz)
+ *
+ * @param {string} query - Arama sorgusu metni
+ */
 function updateSearchQuery(query) {
     state.searchQuery = query;
 }
 
+/**
+ * Tüm aday ve personel verilerini temizler
+ * Kullanıcıdan onay ister
+ */
 function clearAllData() {
     if (confirm('TÜM ADAY VE PERSONEL VERİLERİ SİLİNECEK! Emin misiniz?')) {
         state.candidates = [];

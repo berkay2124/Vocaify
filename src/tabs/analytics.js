@@ -7,6 +7,13 @@ import { getStats, getAnalytics } from '../utils.js';
 let lifecycleChart = null;
 let platformChart = null;
 
+/**
+ * Analizler ve raporlar sekmesini render eder
+ * İstatistikler, yaşam döngüsü dağılımı (Doughnut Chart) ve platform analizi (Bar Chart) içerir
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {string} Analizler tab HTML string'i
+ */
 export function renderAnalyticsTab(state) {
     const stats = getStats(state.candidates, state.employees);
     const analytics = getAnalytics(state.candidates, state.employees);
@@ -70,7 +77,12 @@ export function renderAnalyticsTab(state) {
     `;
 }
 
-// Initialize Charts
+/**
+ * Chart.js grafiklerini initialize eder
+ * Mevcut grafikleri temizler ve yeni Doughnut/Bar chartları oluşturur
+ *
+ * @param {Object} state - Global uygulama state objesi
+ */
 function initCharts(state) {
     // Destroy existing charts if any
     if (lifecycleChart) {
@@ -219,7 +231,16 @@ function initCharts(state) {
     }
 }
 
-// Prepare Lifecycle Chart Data
+/**
+ * Yaşam döngüsü Doughnut Chart için verileri hazırlar
+ * Tüm aday ve personelleri statülerine göre gruplar
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {Object} Chart data objesi
+ * @returns {Array<string>} returns.labels - Status etiketleri
+ * @returns {Array<number>} returns.values - Her statüdeki kişi sayısı
+ * @returns {Array<string>} returns.colors - Her statü için renk kodları
+ */
 function prepareLifecycleData(state) {
     const allPeople = [...state.candidates, ...state.employees];
     const labels = [];
@@ -249,7 +270,15 @@ function prepareLifecycleData(state) {
     return { labels, values, colors };
 }
 
-// Prepare Platform Chart Data
+/**
+ * Platform Bar Chart için verileri hazırlar
+ * Adayları kaynak platformlarına göre gruplar
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {Object} Chart data objesi
+ * @returns {Array<string>} returns.labels - Platform isimleri
+ * @returns {Array<number>} returns.values - Her platformdaki aday sayısı
+ */
 function preparePlatformData(state) {
     const labels = [];
     const values = [];

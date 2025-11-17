@@ -3,7 +3,13 @@
 import { KPI_CATEGORIES, HR_NOTE_CATEGORIES, DOC_TYPES, EMPLOYEE_STAGES } from '../config.js';
 import { formatDate, formatDateTime } from '../utils.js';
 
-// DETAY SEKMESİ
+/**
+ * Modal'daki Detaylar sekmesini render eder
+ * Kişi bilgileri, AI özeti, mülakat ve HR notlarını gösterir
+ *
+ * @param {Object} person - Aday veya personel objesi
+ * @returns {string} Detay sekmesi HTML içeriği
+ */
 export function renderModalTab_Detay(person) {
     return `
         <div class="space-y-6">
@@ -63,7 +69,13 @@ export function renderModalTab_Detay(person) {
     `;
 }
 
-// DEĞERLENDİRME SEKMESİ
+/**
+ * Modal'daki Değerlendirme sekmesini render eder
+ * 10 kategoride KPI değerlendirme formu ve toplam skoru gösterir
+ *
+ * @param {Object} person - Aday objesi
+ * @returns {string} Değerlendirme sekmesi HTML içeriği
+ */
 export function renderModalTab_Degerlendirme(person) {
     const totalScore = person.totalKpiScore || 0;
 
@@ -106,7 +118,13 @@ export function renderModalTab_Degerlendirme(person) {
     `;
 }
 
-// TEKLİF SEKMESİ
+/**
+ * Modal'daki Teklif sekmesini render eder
+ * İş teklifi formu (pozisyon, maaş, yan haklar) ve kabul/red butonlarını gösterir
+ *
+ * @param {Object} person - Aday objesi
+ * @returns {string} Teklif sekmesi HTML içeriği
+ */
 export function renderModalTab_Teklif(person) {
     return `
         <form onsubmit="window.handleModalFormSubmit(event)" data-modal-type="offer" class="space-y-4">
@@ -154,7 +172,13 @@ export function renderModalTab_Teklif(person) {
     `;
 }
 
-// DÖKÜMANLAR SEKMESİ
+/**
+ * Modal'daki Özlük Dosyaları sekmesini render eder
+ * Dosya yükleme formu ve mevcut dosya listesini gösterir
+ *
+ * @param {Object} person - Aday veya personel objesi
+ * @returns {string} Dökümanlar sekmesi HTML içeriği
+ */
 export function renderModalTab_Dokumanlar(person) {
     return `
         <div class="space-y-6">
@@ -202,7 +226,13 @@ export function renderModalTab_Dokumanlar(person) {
     `;
 }
 
-// AKSİYONLAR SEKMESİ
+/**
+ * Modal'daki İK Aksiyonları sekmesini render eder
+ * HR notu, eğitim atama ve anket gönderme formlarını gösterir
+ *
+ * @param {Object} person - Aday veya personel objesi
+ * @returns {string} Aksiyonlar sekmesi HTML içeriği
+ */
 export function renderModalTab_Aksiyonlar(person) {
     return `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -239,7 +269,13 @@ export function renderModalTab_Aksiyonlar(person) {
     `;
 }
 
-// GEÇMİŞ SEKMESİ
+/**
+ * Modal'daki Süreç Geçmişi sekmesini render eder
+ * Kişinin statü değişikliklerini timeline formatında gösterir
+ *
+ * @param {Object} person - Aday veya personel objesi
+ * @returns {string} Geçmiş sekmesi HTML içeriği
+ */
 export function renderModalTab_Gecmis(person) {
     return `
         <div class="space-y-4 max-h-96 overflow-y-auto pr-2">
@@ -271,7 +307,13 @@ export function renderModalTab_Gecmis(person) {
     `;
 }
 
-// PERFORMANS SEKMESİ
+/**
+ * Modal'daki Performans sekmesini render eder
+ * Personel için performans değerlendirme formu ve geçmiş değerlendirmeleri gösterir
+ *
+ * @param {Object} person - Personel objesi
+ * @returns {string} Performans sekmesi HTML içeriği
+ */
 export function renderModalTab_Performans(person) {
     return `
         <div class="space-y-6">
