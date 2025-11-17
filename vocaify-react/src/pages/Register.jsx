@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User, Zap, AlertCircle, CheckCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Zap, AlertCircle, CheckCircle, Briefcase } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { ROLES } from '../data/roles';
 
 /**
  * Register (Kayıt) Sayfası
@@ -15,7 +16,8 @@ function Register() {
         displayName: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: ROLES.RECRUITER // Default: HR role
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -56,7 +58,7 @@ function Register() {
         try {
             setError('');
             setLoading(true);
-            await signup(formData.email, formData.password, formData.displayName);
+            await signup(formData.email, formData.password, formData.displayName, formData.role);
             navigate('/');
         } catch (err) {
             console.error('Signup error:', err);
@@ -145,6 +147,31 @@ function Register() {
                                 required
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="text-gray-300 text-sm font-medium mb-2 block">
+                            Hesap Türü
+                        </label>
+                        <div className="relative">
+                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <select
+                                name="role"
+                                value={formData.role}
+                                onChange={handleChange}
+                                className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-purple-500/30 rounded-xl text-white focus:outline-none focus:border-purple-500 appearance-none"
+                                required
+                            >
+                                <option value={ROLES.RECRUITER}>İK / HR (İşe Alım)</option>
+                                <option value={ROLES.ADMIN}>İK / HR (Yönetici)</option>
+                                <option value={ROLES.EMPLOYEE}>Çalışan (Self-Service)</option>
+                            </select>
+                        </div>
+                        <p className="text-gray-400 text-xs mt-1">
+                            {formData.role === ROLES.EMPLOYEE
+                                ? 'Çalışan portalına erişim'
+                                : 'İşe alım sistemine tam erişim'}
+                        </p>
                     </div>
 
                     <div>

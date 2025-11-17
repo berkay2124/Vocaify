@@ -11,7 +11,8 @@ export const ROLES = {
     ADMIN: 'admin',
     HIRING_MANAGER: 'hiring_manager',
     INTERVIEWER: 'interviewer',
-    RECRUITER: 'recruiter'
+    RECRUITER: 'recruiter',
+    EMPLOYEE: 'employee' // Çalışan (ESS Portal)
 };
 
 /**
@@ -47,6 +48,12 @@ export const ROLE_DEFINITIONS = {
         displayName: 'Mülakatçı',
         description: 'Atanan adayların mülakatı',
         level: 25
+    },
+    [ROLES.EMPLOYEE]: {
+        name: 'Employee',
+        displayName: 'Çalışan',
+        description: 'Self-service portal erişimi',
+        level: 10
     }
 };
 

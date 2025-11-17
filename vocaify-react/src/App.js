@@ -20,7 +20,9 @@ import SuperAdmin from './pages/SuperAdmin';
 import Feedback from './pages/Feedback';
 import Onboarding from './pages/Onboarding';
 import Integrations from './pages/Integrations';
+import EmployeeDashboard from './pages/EmployeeDashboard';
 import { extractTextFromCV, validateFileSize, validateFileType } from './utils/cvParser';
+import { ROLES } from './data/roles';
 import { analyzeCVWithAI, isAIConfigured } from './utils/aiAnalyzer';
 import './App.css';
 
@@ -44,6 +46,12 @@ function ProtectedRoute({ children }) {
  */
 function AppContent() {
     const { activeTab, loading, setLoading, addCandidate } = useApp();
+    const { currentUser } = useAuth();
+
+    // Employee rolü kontrolü - ESS Portal'a yönlendir
+    if (currentUser?.role === ROLES.EMPLOYEE) {
+        return <EmployeeDashboard />;
+    }
 
     // CV yükleme handler'ı - Gerçek AI analizi ile
     const handleCVUpload = async (event) => {
