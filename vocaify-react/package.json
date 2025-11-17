@@ -18,7 +18,8 @@
     "react-i18next": "^13.5.0",
     "i18next-http-backend": "^2.4.2",
     "i18next-browser-languagedetector": "^7.2.0",
-    "recharts": "^2.10.0"
+    "recharts": "^2.10.0",
+    "@anthropic-ai/sdk": "^0.30.0"
   },
   "scripts": {
     "start": "react-scripts start",
