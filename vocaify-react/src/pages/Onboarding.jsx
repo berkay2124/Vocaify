@@ -1,30 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, CheckCircle, Circle, Calendar, User, TrendingUp, Award } from 'lucide-react';
+import { UserPlus, CheckCircle, Circle, Calendar, User, TrendingUp, Award, Globe, Shield, Mail, FileText, AlertTriangle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 
 /**
  * Employee Onboarding Modülü
  * Yeni işe alınan personelin işe başlama sürecini yönetir
- * AŞAMA 18
+ * AŞAMA 18 + AŞAMA 34: Global Compliance Integration
  */
 function Onboarding() {
     const { candidates, setCandidates } = useApp();
     const { currentUser } = useAuth();
     const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-    // Varsayılan onboarding checklist
+    // Varsayılan onboarding checklist (AŞAMA 34: Compliance adımları eklendi)
     const DEFAULT_CHECKLIST = [
-        { id: 1, task: 'Sözleşme İmzalandı', completed: false, completedBy: '', completedDate: '' },
-        { id: 2, task: 'IT Hesapları Oluşturuldu', completed: false, completedBy: '', completedDate: '' },
-        { id: 3, task: 'Ekipman (Bilgisayar, Telefon) Hazırlandı', completed: false, completedBy: '', completedDate: '' },
-        { id: 4, task: 'İlk Gün Oryantasyonu Tamamlandı', completed: false, completedBy: '', completedDate: '' },
-        { id: 5, task: 'Ekip Tanışması Planlandı', completed: false, completedBy: '', completedDate: '' },
-        { id: 6, task: 'Departman Eğitimi Verildi', completed: false, completedBy: '', completedDate: '' }
+        { id: 1, task: 'Sözleşme İmzalandı', completed: false, completedBy: '', completedDate: '', category: 'legal' },
+        { id: 2, task: 'Yasal Evraklar Tamamlandı (Compliance Docs)', completed: false, completedBy: '', completedDate: '', category: 'compliance' },
+        { id: 3, task: 'KVKK/GDPR Bildirimi Yapıldı', completed: false, completedBy: '', completedDate: '', category: 'compliance' },
+        { id: 4, task: 'Hoş Geldin E-postası Gönderildi (AI Generated)', completed: false, completedBy: '', completedDate: '', category: 'communication' },
+        { id: 5, task: 'IT Hesapları Oluşturuldu', completed: false, completedBy: '', completedDate: '', category: 'technical' },
+        { id: 6, task: 'Ekipman (Bilgisayar, Telefon) Hazırlandı', completed: false, completedBy: '', completedDate: '', category: 'technical' },
+        { id: 7, task: 'İlk Gün Oryantasyonu Tamamlandı', completed: false, completedBy: '', completedDate: '', category: 'onboarding' },
+        { id: 8, task: 'Ekip Tanışması Planlandı', completed: false, completedBy: '', completedDate: '', category: 'onboarding' },
+        { id: 9, task: 'Departman Eğitimi Verildi', completed: false, completedBy: '', completedDate: '', category: 'training' },
+        { id: 10, task: 'İş Sağlığı ve Güvenliği Eğitimi Tamamlandı', completed: false, completedBy: '', completedDate: '', category: 'compliance' }
     ];
 
     // Personel statüsündeki çalışanları filtrele
     const employees = candidates.filter(c => c.status === 'personel');
+
+    // AŞAMA 34: Compliance requirements based on country
+    const getComplianceRequirements = (country) => {
+        const requirements = {
+            'Türkiye': {
+                law: 'KVKK (Kişisel Verilerin Korunması Kanunu)',
+                color: 'from-red-600 to-orange-600',
+                icon: '🇹🇷',
+                checklist: [
+                    'KVKK Aydınlatma Metni İmzalatıldı',
+                    'Kişisel veri işleme izni alındı',
+                    'İş sözleşmesi noter onaylı'
+                ]
+            },
+            'Almanya': {
+                law: 'GDPR (General Data Protection Regulation)',
+                color: 'from-yellow-600 to-amber-600',
+                icon: '🇩🇪',
+                checklist: [
+                    'GDPR uyumluluğu sağlandı',
+                    'Veri işleme sözleşmesi imzalandı',
+                    'Çalışan hakları bildirimi yapıldı'
+                ]
+            },
+            'ABD': {
+                law: 'Employment Laws (State-specific)',
+                color: 'from-blue-600 to-cyan-600',
+                icon: '🇺🇸',
+                checklist: [
+                    'I-9 formu tamamlandı',
+                    'W-4 formu dolduruldu',
+                    'State-specific compliance sağlandı'
+                ]
+            },
+            'İngiltere': {
+                law: 'UK GDPR & Employment Law',
+                color: 'from-indigo-600 to-purple-600',
+                icon: '🇬🇧',
+                checklist: [
+                    'UK GDPR uyumluluğu sağlandı',
+                    'Right to Work belgesi kontrol edildi',
+                    'Employment contract imzalandı'
+                ]
+            },
+            'Fransa': {
+                law: 'GDPR & French Labor Code',
+                color: 'from-blue-600 to-indigo-600',
+                icon: '🇫🇷',
+                checklist: [
+                    'GDPR uyumluluğu',
+                    'Code du Travail gereklilikleri',
+                    'Medical examination tamamlandı'
+                ]
+            }
+        };
+
+        return requirements[country] || {
+            law: 'General Compliance',
+            color: 'from-gray-600 to-slate-600',
+            icon: '🌍',
+            checklist: [
+                'Yerel yasalara uygunluk kontrol edildi',
+                'İş sözleşmesi imzalandı',
+                'Şirket politikaları kabul edildi'
+            ]
+        };
+    };
 
     // Seçilen personelin checklist'ini otomatik oluştur (eğer yoksa)
     useEffect(() => {
@@ -111,7 +182,66 @@ function Onboarding() {
                     </p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <>
+                    {/* AŞAMA 34: Global Compliance Overview Widget */}
+                    <div className="glass p-6 rounded-2xl border-2 border-blue-500/30">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-3 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl">
+                                <Globe className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                    Global Compliance Overview
+                                    <Shield className="w-5 h-5 text-blue-400" />
+                                </h3>
+                                <p className="text-gray-400 text-sm">Ülke bazlı yasal gereklilikler ve uyum durumu</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            {['Türkiye', 'Almanya', 'ABD', 'İngiltere', 'Fransa'].map((country) => {
+                                const employeesInCountry = employees.filter(e => (e.country || 'Türkiye') === country);
+                                const compliance = getComplianceRequirements(country);
+
+                                if (employeesInCountry.length === 0) return null;
+
+                                return (
+                                    <div key={country} className={`bg-gradient-to-br ${compliance.color}/10 border border-${compliance.color.split('-')[1]}/30 rounded-lg p-4`}>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-2xl">{compliance.icon}</span>
+                                            <div>
+                                                <p className="text-white font-bold text-sm">{country}</p>
+                                                <p className="text-gray-400 text-xs">{employeesInCountry.length} çalışan</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 pt-3 border-t border-gray-700/50">
+                                            <p className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                                                <Shield className="w-3 h-3" />
+                                                Gerekli:
+                                            </p>
+                                            <p className="text-xs text-white font-medium">{compliance.law}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Compliance Warnings */}
+                        {employees.some(e => !e.country) && (
+                            <div className="mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 flex items-start gap-3">
+                                <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-yellow-300 font-medium text-sm mb-1">Uyarı: Eksik Ülke Bilgisi</p>
+                                    <p className="text-gray-400 text-xs">
+                                        {employees.filter(e => !e.country).length} çalışanın ülke bilgisi eksik.
+                                        Yasal uyumluluk için lütfen güncelleyin.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Sol: Personel Listesi */}
                     <div className="glass p-6 rounded-2xl">
                         <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -207,7 +337,7 @@ function Onboarding() {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                                         <div>
                                             <p className="text-gray-400">İşe Başlama Tarihi</p>
                                             <p className="text-white font-medium">
@@ -220,6 +350,45 @@ function Onboarding() {
                                             <p className="text-gray-400">Onboarding İlerlemesi</p>
                                             <p className="text-white font-medium">{calculateProgress(selectedEmployee)}%</p>
                                         </div>
+                                        {/* AŞAMA 34: Country & Legal Status */}
+                                        <div>
+                                            <p className="text-gray-400 flex items-center gap-1">
+                                                <Globe className="w-3 h-3" />
+                                                Ülke
+                                            </p>
+                                            <p className="text-white font-medium">
+                                                {getComplianceRequirements(selectedEmployee.country || 'Türkiye').icon} {selectedEmployee.country || 'Türkiye'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-400 flex items-center gap-1">
+                                                <FileText className="w-3 h-3" />
+                                                Çalışma Şekli
+                                            </p>
+                                            <p className="text-white font-medium">
+                                                {selectedEmployee.legalStatus === 'Remote' ? '🏠 Uzaktan' :
+                                                 selectedEmployee.legalStatus === 'Hybrid' ? '🔄 Hibrit' :
+                                                 '🏢 Ofis'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* AŞAMA 34: Compliance Requirements for this Country */}
+                                    <div className="mt-4 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Shield className="w-4 h-4 text-blue-400" />
+                                            <p className="text-white font-medium text-sm">
+                                                Yasal Gereklilikler: {getComplianceRequirements(selectedEmployee.country || 'Türkiye').law}
+                                            </p>
+                                        </div>
+                                        <ul className="space-y-1">
+                                            {getComplianceRequirements(selectedEmployee.country || 'Türkiye').checklist.map((item, idx) => (
+                                                <li key={idx} className="text-xs text-gray-300 flex items-start gap-2">
+                                                    <CheckCircle className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" />
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
                                 </div>
 
@@ -248,11 +417,26 @@ function Onboarding() {
                                                         <Circle className="w-6 h-6 text-gray-500 flex-shrink-0" />
                                                     )}
                                                     <div className="flex-1">
-                                                        <p className={`font-medium ${
-                                                            item.completed ? 'text-green-300 line-through' : 'text-white'
-                                                        }`}>
-                                                            {item.task}
-                                                        </p>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <p className={`font-medium ${
+                                                                item.completed ? 'text-green-300 line-through' : 'text-white'
+                                                            }`}>
+                                                                {item.task}
+                                                            </p>
+                                                            {/* AŞAMA 34: Category Badge */}
+                                                            {item.category === 'compliance' && (
+                                                                <span className="px-2 py-0.5 bg-blue-500/20 border border-blue-500/30 rounded text-xs text-blue-300 flex items-center gap-1">
+                                                                    <Shield className="w-3 h-3" />
+                                                                    Uyumluluk
+                                                                </span>
+                                                            )}
+                                                            {item.category === 'communication' && (
+                                                                <span className="px-2 py-0.5 bg-purple-500/20 border border-purple-500/30 rounded text-xs text-purple-300 flex items-center gap-1">
+                                                                    <Mail className="w-3 h-3" />
+                                                                    İletişim
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         {item.completed && item.completedBy && (
                                                             <p className="text-xs text-gray-400 mt-1">
                                                                 {item.completedBy} tarafından {new Date(item.completedDate).toLocaleDateString('tr-TR')} tarihinde tamamlandı
@@ -281,6 +465,7 @@ function Onboarding() {
                         )}
                     </div>
                 </div>
+                </>
             )}
         </div>
     );
