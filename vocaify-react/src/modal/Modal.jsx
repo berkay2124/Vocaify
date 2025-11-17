@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { XCircle, Eye, Award, DollarSign, FileStack, Zap, History, TrendingUp, Wand2 } from 'lucide-react';
+import { XCircle, Eye, Award, DollarSign, FileStack, Zap, History, TrendingUp, Wand2, Calendar } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { canViewModalTab } from '../data/roles';
@@ -12,16 +12,19 @@ import ActionsTab from './ModalTabs/ActionsTab';
 import HistoryTab from './ModalTabs/HistoryTab';
 import PerformanceTab from './ModalTabs/PerformanceTab';
 import AIToolkit from '../components/AIToolkit';
+import InterviewScheduler from '../components/InterviewScheduler';
 
 /**
  * Ana modal bileşenini render eder
  * Aday/personel detay modal'ı, sekme başlıkları ve içeriğini gösterir
  * AŞAMA 16: AI Araç Kiti entegrasyonu
+ * AŞAMA 17: Mülakat Planlama entegrasyonu
  */
 function Modal() {
     const { showModal, selectedPerson, modalTab, setModalTab, closeModal } = useApp();
     const { currentUser } = useAuth();
     const [showAIToolkit, setShowAIToolkit] = useState(false);
+    const [showInterviewScheduler, setShowInterviewScheduler] = useState(false);
 
     if (!showModal || !selectedPerson) return null;
 
@@ -86,14 +89,24 @@ function Modal() {
                     <div className="flex items-center gap-3">
                         {/* AI Asistan Butonu - AŞAMA 16 */}
                         {!isEmployee && (
-                            <button
-                                onClick={() => setShowAIToolkit(true)}
-                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 font-medium text-sm"
-                                title="AI Araç Kiti"
-                            >
-                                <Wand2 className="w-4 h-4" />
-                                AI Asistan
-                            </button>
+                            <>
+                                <button
+                                    onClick={() => setShowInterviewScheduler(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2 font-medium text-sm"
+                                    title="Mülakat Planla"
+                                >
+                                    <Calendar className="w-4 h-4" />
+                                    Mülakat Planla
+                                </button>
+                                <button
+                                    onClick={() => setShowAIToolkit(true)}
+                                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 font-medium text-sm"
+                                    title="AI Araç Kiti"
+                                >
+                                    <Wand2 className="w-4 h-4" />
+                                    AI Asistan
+                                </button>
+                            </>
                         )}
                         <button onClick={closeModal} className="text-gray-400 hover:text-white transition-all">
                             <XCircle className="w-6 h-6" />
@@ -132,6 +145,14 @@ function Modal() {
                 <AIToolkit
                     candidate={person}
                     onClose={() => setShowAIToolkit(false)}
+                />
+            )}
+
+            {/* Interview Scheduler Modal - AŞAMA 17 */}
+            {showInterviewScheduler && (
+                <InterviewScheduler
+                    candidate={person}
+                    onClose={() => setShowInterviewScheduler(false)}
                 />
             )}
         </div>

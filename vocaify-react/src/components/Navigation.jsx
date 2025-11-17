@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, UserCheck, Search, BarChart3, CreditCard, Sparkles, Shield } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, Search, BarChart3, CreditCard, Sparkles, Shield, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -20,6 +20,7 @@ function Navigation() {
         { id: 'search', label: t('navigation.aiSearch'), icon: Search },
         { id: 'sourcing', label: 'AI Sourcing', icon: Sparkles },
         { id: 'analytics', label: t('navigation.analytics'), icon: BarChart3 },
+        { id: 'feedback', label: 'Mülakat Geri Bildirimi', icon: MessageSquare },
         { id: 'billing', label: t('navigation.billing'), icon: CreditCard },
         { id: 'superadmin', label: 'Süper Admin', icon: Shield }
     ];
