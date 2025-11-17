@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star } from 'lucide-react';
+import { User, Calendar, DollarSign, CheckCircle, Circle, LogOut, FileText, Clock, MessageSquare, Target, Star, Briefcase } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import MyPerformance from './MyPerformance';
+import CareerOpportunities from './CareerOpportunities';
 
 /**
  * Employee Self-Service Portal (ESS)
@@ -175,6 +176,7 @@ function EmployeeDashboard() {
                         { id: 'leave', label: 'İzin Talebi', icon: Calendar },
                         { id: 'performance', label: 'Performansım', icon: Target },
                         { id: 'surveys', label: 'Anketlerim', icon: MessageSquare },
+                        { id: 'career', label: 'Kariyer Fırsatları', icon: Briefcase },
                         { id: 'payroll', label: 'Maaş Bordrosu', icon: DollarSign },
                         { id: 'tasks', label: 'Görevlerim', icon: CheckCircle }
                     ].map((tab) => {
@@ -533,6 +535,11 @@ function EmployeeDashboard() {
                                 );
                             })()}
                         </div>
+                    )}
+
+                    {/* Kariyer Fırsatları Bölümü - AŞAMA 23 */}
+                    {activeSection === 'career' && (
+                        <CareerOpportunities />
                     )}
 
                     {/* Görevlerim Bölümü */}
