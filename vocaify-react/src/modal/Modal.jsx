@@ -1,6 +1,8 @@
 import React from 'react';
 import { XCircle, Eye, Award, DollarSign, FileStack, Zap, History, TrendingUp } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import { canViewModalTab } from '../data/roles';
 import { STATUS_CONFIG, EMPLOYEE_STAGES } from '../config/constants';
 import DetailTab from './ModalTabs/DetailTab';
 import EvaluationTab from './ModalTabs/EvaluationTab';
@@ -16,13 +18,14 @@ import PerformanceTab from './ModalTabs/PerformanceTab';
  */
 function Modal() {
     const { showModal, selectedPerson, modalTab, setModalTab, closeModal } = useApp();
+    const { currentUser } = useAuth();
 
     if (!showModal || !selectedPerson) return null;
 
     const person = selectedPerson;
     const isEmployee = EMPLOYEE_STAGES.includes(person.status);
 
-    const modalTabs = [
+    const allModalTabs = [
         { id: 'detay', label: 'Detaylar', icon: Eye },
         !isEmployee && { id: 'degerlendirme', label: 'Değerlendirme', icon: Award },
         !isEmployee && { id: 'teklif', label: 'Teklif', icon: DollarSign },
@@ -31,6 +34,11 @@ function Modal() {
         { id: 'gecmis', label: 'Süreç Geçmişi', icon: History },
         isEmployee && { id: 'performans', label: 'Performans', icon: TrendingUp }
     ].filter(Boolean);
+
+    // Kullanıcının rolüne göre görünür sekmeleri filtrele
+    const modalTabs = currentUser
+        ? allModalTabs.filter(tab => canViewModalTab(currentUser.role, tab.id))
+        : allModalTabs;
 
     const getModalTabContent = () => {
         switch (modalTab) {

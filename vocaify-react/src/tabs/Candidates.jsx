@@ -1,6 +1,8 @@
 import React from 'react';
 import { Eye, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import { ROLES } from '../data/roles';
 import { STATUS_CONFIG, CANDIDATE_STAGES, PLATFORMS } from '../config/constants';
 import { formatDate } from '../utils/helpers';
 
@@ -21,9 +23,31 @@ function Candidates() {
         employees,
         setEmployees
     } = useApp();
+    const { currentUser } = useAuth();
 
-    // Filtrelenmiş adaylar
+    // Filtrelenmiş adaylar (rol bazlı + status/platform filtresi)
     const filteredCandidates = candidates.filter(c => {
+        // 1. Rol bazlı filtreleme
+        if (currentUser) {
+            // INTERVIEWER: Sadece kendisine atanan adaylar
+            if (currentUser.role === ROLES.INTERVIEWER) {
+                const isAssigned = c.assignedInterviewers?.some(
+                    interviewer => interviewer.email === currentUser.email
+                );
+                if (!isAssigned) return false;
+            }
+
+            // HIRING_MANAGER: Sadece kendi departmanındaki adaylar
+            if (currentUser.role === ROLES.HIRING_MANAGER) {
+                if (c.department && currentUser.department && c.department !== currentUser.department) {
+                    return false;
+                }
+            }
+
+            // ADMIN ve RECRUITER: Tüm adayları görebilir (filtreleme yok)
+        }
+
+        // 2. Status ve platform filtresi
         const matchStatus = filterStatus === 'all' || c.status === filterStatus;
         const matchPlatform = filterPlatform === 'all' || c.platform === filterPlatform;
         return matchStatus && matchPlatform;

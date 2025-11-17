@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Mail, Phone, Briefcase, Save } from 'lucide-react';
+import { Mail, Phone, Briefcase, Save, UserPlus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
+import RoleGuard from '../../components/RoleGuard';
 import { EMPLOYEE_STAGES } from '../../config/constants';
 
 /**
@@ -9,10 +11,38 @@ import { EMPLOYEE_STAGES } from '../../config/constants';
  */
 function DetailTab({ person }) {
     const { candidates, employees, setCandidates, setEmployees } = useApp();
+    const { currentUser } = useAuth();
     const [interviewNotes, setInterviewNotes] = useState(person.interviewNotes || '');
     const [hrNotes, setHrNotes] = useState(
         person.hrNotes?.find(n => n.category === 'Genel Gözlem')?.note || ''
     );
+    const [newInterviewerEmail, setNewInterviewerEmail] = useState('');
+    const [assignedInterviewers, setAssignedInterviewers] = useState(person.assignedInterviewers || []);
+
+    const addInterviewer = () => {
+        if (!newInterviewerEmail || !newInterviewerEmail.includes('@')) {
+            alert('Lütfen geçerli bir email adresi girin.');
+            return;
+        }
+
+        if (assignedInterviewers.some(i => i.email === newInterviewerEmail)) {
+            alert('Bu mülakatçı zaten atanmış.');
+            return;
+        }
+
+        const newInterviewer = {
+            email: newInterviewerEmail,
+            assignedBy: currentUser?.email || 'Sistem',
+            assignedDate: new Date().toISOString()
+        };
+
+        setAssignedInterviewers([...assignedInterviewers, newInterviewer]);
+        setNewInterviewerEmail('');
+    };
+
+    const removeInterviewer = (email) => {
+        setAssignedInterviewers(assignedInterviewers.filter(i => i.email !== email));
+    };
 
     const saveNotes = () => {
         const isEmployee = EMPLOYEE_STAGES.includes(person.status);
@@ -42,13 +72,14 @@ function DetailTab({ person }) {
                 return {
                     ...p,
                     interviewNotes,
-                    hrNotes: newHrNotes
+                    hrNotes: newHrNotes,
+                    assignedInterviewers
                 };
             }
             return p;
         }));
 
-        alert('Notlar Kaydedildi!');
+        alert('Notlar ve atamalar kaydedildi!');
     };
 
     return (
@@ -85,6 +116,55 @@ function DetailTab({ person }) {
                     <p className="text-white leading-relaxed">{person.analysis.aiRecommendation}</p>
                 </div>
             )}
+
+            {/* Mülakatçı Atama (Sadece izni olan kullanıcılar görebilir) */}
+            <RoleGuard permission="assign_interviewer">
+                <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+                    <p className="text-green-300 text-sm font-medium mb-3 flex items-center gap-2">
+                        <UserPlus className="w-4 h-4" />
+                        Mülakatçı Ataması
+                    </p>
+
+                    <div className="flex gap-2 mb-3">
+                        <input
+                            type="email"
+                            value={newInterviewerEmail}
+                            onChange={(e) => setNewInterviewerEmail(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && addInterviewer()}
+                            placeholder="Mülakatçı email adresi"
+                            className="flex-1 px-4 py-2 bg-slate-700/50 border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500"
+                        />
+                        <button
+                            onClick={addInterviewer}
+                            className="px-4 py-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-all"
+                        >
+                            Ata
+                        </button>
+                    </div>
+
+                    {assignedInterviewers.length > 0 && (
+                        <div className="space-y-2">
+                            <p className="text-gray-400 text-xs mb-2">Atanmış Mülakatçılar:</p>
+                            {assignedInterviewers.map((interviewer, index) => (
+                                <div key={index} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                                    <div className="text-sm">
+                                        <p className="text-white font-medium">{interviewer.email}</p>
+                                        <p className="text-gray-400 text-xs">
+                                            Atayan: {interviewer.assignedBy} • {new Date(interviewer.assignedDate).toLocaleDateString('tr-TR')}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => removeInterviewer(interviewer.email)}
+                                        className="text-red-400 hover:text-red-300 text-sm"
+                                    >
+                                        Kaldır
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </RoleGuard>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
