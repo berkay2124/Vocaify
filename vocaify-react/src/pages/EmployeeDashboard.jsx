@@ -56,6 +56,10 @@ function EmployeeDashboard() {
     });
     const [expenseSubmitted, setExpenseSubmitted] = useState(false);
 
+    // AŞAMA 22: Anket state'leri (DÜZELTİLDİ - üst seviyeye taşındı)
+    const [surveyAnswers, setSurveyAnswers] = useState({});
+    const [completedSurveys, setCompletedSurveys] = useState([]);
+
     // Profil güncelleme
     const handleProfileUpdate = () => {
         if (employeeRecord) {
@@ -622,13 +626,13 @@ function EmployeeDashboard() {
                                 ) : (
                                     <div className="space-y-3">
                                         {myExpenses.map((expense) => {
-                                            const statusColors = {
+                                            const expenseStatusColors = {
                                                 pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
                                                 approved: 'bg-green-500/20 text-green-300 border-green-500/30',
                                                 rejected: 'bg-red-500/20 text-red-300 border-red-500/30'
                                             };
 
-                                            const statusLabels = {
+                                            const expenseStatusLabels = {
                                                 pending: 'Beklemede',
                                                 approved: 'Onaylandı',
                                                 rejected: 'Reddedildi'
@@ -668,9 +672,9 @@ function EmployeeDashboard() {
                                                                 })}
                                                             </p>
                                                         </div>
-                                                        <div className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${statusColors[expense.status]}`}>
+                                                        <div className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${expenseStatusColors[expense.status]}`}>
                                                             {statusIcons[expense.status]}
-                                                            {statusLabels[expense.status]}
+                                                            {expenseStatusLabels[expense.status]}
                                                         </div>
                                                     </div>
 
@@ -753,7 +757,7 @@ function EmployeeDashboard() {
                         <MyPerformance />
                     )}
 
-                    {/* Anketlerim Bölümü - AŞAMA 22 */}
+                    {/* Anketlerim Bölümü - AŞAMA 22 (DÜZELTİLDİ) */}
                     {activeSection === 'surveys' && (
                         <div className="glass p-6 rounded-2xl" style={{ animation: 'fadeIn 0.5s ease-out' }}>
                             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
@@ -770,9 +774,6 @@ function EmployeeDashboard() {
 
                             {/* Demo Anket - Gerçekte backend'den gelecek */}
                             {(() => {
-                                const [surveyAnswers, setSurveyAnswers] = useState({});
-                                const [completedSurveys, setCompletedSurveys] = useState([]);
-
                                 const demoSurvey = {
                                     id: 1,
                                     name: 'Haftalık Mutluluk Anketi',
