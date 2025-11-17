@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocaify HR | İşe Alımın Geleceği - AI Destekli İK Yönetimi</title>
+    <meta name="description" content="Vocaify HR ile işe alım sürecinizi AI ile hızlandırın. Akıllı CV analizi, KPI değerlendirme ve tam yaşam döngüsü yönetimi.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #e5e7eb;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(124, 58, 237, 0.5);
+        }
+
+        .pricing-card {
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: scale(1.05);
+        }
+
+        .faq-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer.active {
+            max-height: 500px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-purple-500/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                        <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white">Vocaify HR</span>
+                </div>
+
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-gray-300 hover:text-white transition-colors">Özellikler</a>
+                    <a href="#how-it-works" class="text-gray-300 hover:text-white transition-colors">Nasıl Çalışır</a>
+                    <a href="#pricing" class="text-gray-300 hover:text-white transition-colors">Fiyatlandırma</a>
+                    <a href="#faq" class="text-gray-300 hover:text-white transition-colors">SSS</a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <a href="#contact" class="hidden sm:block text-purple-400 hover:text-purple-300 transition-colors font-medium">Giriş Yap</a>
+                    <a href="#contact" class="px-6 py-2.5 gradient-bg text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all font-medium">
+                        Demo Talep Et
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 px-6 overflow-hidden">
+        <!-- Background Gradient Orbs -->
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl floating"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl floating" style="animation-delay: 3s;"></div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full mb-8">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+                    <span class="text-sm text-purple-300 font-medium">AI-Powered Recruitment Platform</span>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
+                    İşe Alımın <span class="gradient-text">Geleceği</span>
+                </h1>
+
+                <p class="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+                    Yapay zeka destekli CV analizi, akıllı aday eşleştirme ve tam yaşam döngüsü yönetimi ile işe alım sürecinizi <span class="text-purple-400 font-semibold">10 kat hızlandırın</span>.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                    <a href="#contact" class="w-full sm:w-auto px-8 py-4 gradient-bg text-white text-lg font-semibold rounded-xl hover:shadow-2xl hover:shadow-purple-500/50 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="rocket" class="w-5 h-5"></i>
+                        Ücretsiz Deneyin
+                    </a>
+                    <a href="#how-it-works" class="w-full sm:w-auto px-8 py-4 glass text-white text-lg font-semibold rounded-xl hover:border-purple-500/50 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="play-circle" class="w-5 h-5"></i>
+                        Demo İzle
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+                    <div class="glass p-6 rounded-xl">
+                        <div class="text-4xl font-bold gradient-text mb-2">95%</div>
+                        <div class="text-gray-400 text-sm">Zaman Tasarrufu</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl">
+                        <div class="text-4xl font-bold gradient-text mb-2">10K+</div>
+                        <div class="text-gray-400 text-sm">Analiz Edilen CV</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl">
+                        <div class="text-4xl font-bold gradient-text mb-2">500+</div>
+                        <div class="text-gray-400 text-sm">Mutlu Müşteri</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl">
+                        <div class="text-4xl font-bold gradient-text mb-2">4.9/5</div>
+                        <div class="text-gray-400 text-sm">Müşteri Memnuniyeti</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                    Güçlü <span class="gradient-text">Özellikler</span>
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    İşe alım sürecinizi baştan sona optimize eden yapay zeka destekli araçlar
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Feature 1 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="brain" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">AI CV Analizi</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Yapay zeka, CV'leri saniyeler içinde analiz eder ve aday profilini otomatik oluşturur.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="search" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Akıllı Arama</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Doğal dil ile arama yapın, AI en uygun adayları %99 isabetlilikle bulur.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="award" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">KPI Değerlendirme</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        10 kategori üzerinden detaylı KPI skorlaması ile objektif değerlendirme.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="users" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Yaşam Döngüsü Takibi</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Adaydan personele kadar tüm süreci tek platformda yönetin.
+                    </p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="bar-chart-3" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Gelişmiş Raporlama</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Gerçek zamanlı dashboard ve detaylı analitik raporlar.
+                    </p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="file-stack" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Özlük Dosyası Yönetimi</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Tüm personel belgelerini güvenle saklayın ve yönetin.
+                    </p>
+                </div>
+
+                <!-- Feature 7 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="trending-up" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Performans Takibi</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Personel performansını düzenli olarak değerlendirin ve geliştirin.
+                    </p>
+                </div>
+
+                <!-- Feature 8 -->
+                <div class="glass p-8 rounded-2xl feature-card">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="shield-check" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">KVKK Uyumlu</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Tüm verileriniz KVKK ve GDPR standartlarında güvende.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 px-6 bg-gradient-to-b from-transparent via-purple-900/10 to-transparent">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                    Nasıl <span class="gradient-text">Çalışır?</span>
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Sadece 3 adımda işe alım sürecinizi otomatikleştirin
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="relative">
+                    <div class="glass p-8 rounded-2xl text-center">
+                        <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-6 text-3xl font-bold text-white">
+                            1
+                        </div>
+                        <div class="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="upload" class="w-7 h-7 text-purple-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">CV'leri Yükleyin</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Adayların CV'lerini toplu olarak yükleyin veya doğrudan platformlardan çekin (LinkedIn, Kariyer.net vb.)
+                        </p>
+                    </div>
+                    <!-- Arrow -->
+                    <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                        <i data-lucide="arrow-right" class="w-8 h-8 text-purple-500"></i>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative">
+                    <div class="glass p-8 rounded-2xl text-center">
+                        <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-6 text-3xl font-bold text-white">
+                            2
+                        </div>
+                        <div class="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="sparkles" class="w-7 h-7 text-purple-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">AI Analiz Etsin</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Yapay zeka saniyeler içinde tüm CV'leri analiz eder, aday skorlaması yapar ve önerilerde bulunur.
+                        </p>
+                    </div>
+                    <!-- Arrow -->
+                    <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                        <i data-lucide="arrow-right" class="w-8 h-8 text-purple-500"></i>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="glass p-8 rounded-2xl text-center">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-6 text-3xl font-bold text-white">
+                        3
+                    </div>
+                    <div class="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="check-circle" class="w-7 h-7 text-purple-400"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">En İyisini İşe Alın</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Filtrelenmiş ve skorlanmış adaylar arasından en uygun olanı seçin ve işe alım sürecini başlatın.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-6">
+                        Neden <span class="gradient-text">Vocaify HR?</span>
+                    </h2>
+                    <p class="text-xl text-gray-400 mb-8">
+                        Geleneksel işe alım yöntemlerinden 10 kat daha hızlı ve etkili
+                    </p>
+
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2">%95 Zaman Tasarrufu</h3>
+                                <p class="text-gray-400">CV inceleme sürenizi saatlerden dakikalara düşürün.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="target" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2">Doğru Adayı Bulun</h3>
+                                <p class="text-gray-400">AI destekli eşleştirme ile %99 isabetli sonuçlar.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="trending-down" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2">Maliyetleri Azaltın</h3>
+                                <p class="text-gray-400">İşe alım maliyetlerinizi %60 oranında düşürün.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="users-round" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2">Ekip Verimliliği</h3>
+                                <p class="text-gray-400">İK ekibiniz stratejik işlere odaklanabilir.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="chart-line" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2">Sürekli İyileştirme</h3>
+                                <p class="text-gray-400">Detaylı raporlar ile sürecinizi sürekli optimize edin.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="glass p-8 rounded-2xl">
+                        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop" alt="Team" class="rounded-xl w-full h-auto">
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                    Şeffaf <span class="gradient-text">Fiyatlandırma</span>
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    İhtiyacınıza uygun planı seçin, istediğiniz zaman iptal edin
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Starter Plan -->
+                <div class="glass p-8 rounded-2xl pricing-card">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-bold text-white mb-2">Başlangıç</h3>
+                        <p class="text-gray-400 mb-6">Küçük ekipler için</p>
+                        <div class="mb-4">
+                            <span class="text-5xl font-black text-white">₺2,999</span>
+                            <span class="text-gray-400">/ay</span>
+                        </div>
+                        <p class="text-sm text-gray-500">Yıllık ödeme ile %20 indirim</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            50 CV/ay AI analizi
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Akıllı arama
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            KPI değerlendirme
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Temel raporlar
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Email desteği
+                        </li>
+                    </ul>
+
+                    <a href="#contact" class="block w-full px-6 py-3 border-2 border-purple-500 text-purple-400 text-center font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-all">
+                        Başlayın
+                    </a>
+                </div>
+
+                <!-- Professional Plan (Popular) -->
+                <div class="glass p-8 rounded-2xl pricing-card border-2 border-purple-500 relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="px-4 py-1 gradient-bg text-white text-sm font-bold rounded-full">En Popüler</span>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-bold text-white mb-2">Profesyonel</h3>
+                        <p class="text-gray-400 mb-6">Büyüyen şirketler için</p>
+                        <div class="mb-4">
+                            <span class="text-5xl font-black gradient-text">₺6,999</span>
+                            <span class="text-gray-400">/ay</span>
+                        </div>
+                        <p class="text-sm text-gray-500">Yıllık ödeme ile %20 indirim</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            <strong>Sınırsız</strong> CV analizi
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Gelişmiş AI eşleştirme
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Yaşam döngüsü yönetimi
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Performans takibi
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Gelişmiş raporlama
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Öncelikli destek
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            API entegrasyonu
+                        </li>
+                    </ul>
+
+                    <a href="#contact" class="block w-full px-6 py-3 gradient-bg text-white text-center font-semibold rounded-lg hover:shadow-xl hover:shadow-purple-500/50 transition-all">
+                        Hemen Başlayın
+                    </a>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="glass p-8 rounded-2xl pricing-card">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-bold text-white mb-2">Kurumsal</h3>
+                        <p class="text-gray-400 mb-6">Büyük organizasyonlar için</p>
+                        <div class="mb-4">
+                            <span class="text-5xl font-black text-white">Özel</span>
+                        </div>
+                        <p class="text-sm text-gray-500">İhtiyaçlarınıza özel paket</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Profesyonel'deki her şey
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Özel AI modeli eğitimi
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Çoklu şirket yönetimi
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Özel entegrasyonlar
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Özel sunucu seçeneği
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            7/24 premium destek
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i data-lucide="check" class="w-5 h-5 text-green-400 flex-shrink-0"></i>
+                            Eğitim ve danışmanlık
+                        </li>
+                    </ul>
+
+                    <a href="#contact" class="block w-full px-6 py-3 border-2 border-purple-500 text-purple-400 text-center font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-all">
+                        İletişime Geçin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 px-6 bg-gradient-to-b from-purple-900/10 to-transparent">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                    Sıkça Sorulan <span class="gradient-text">Sorular</span>
+                </h2>
+                <p class="text-xl text-gray-400">
+                    Merak ettiklerinizin yanıtları
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="glass rounded-xl overflow-hidden faq-item" onclick="toggleFaq(1)">
+                    <div class="p-6 flex justify-between items-center cursor-pointer">
+                        <h3 class="text-lg font-semibold text-white">Vocaify HR nasıl çalışır?</h3>
+                        <i data-lucide="chevron-down" class="w-6 h-6 text-purple-400 faq-icon-1 transition-transform"></i>
+                    </div>
+                    <div class="faq-answer faq-answer-1 px-6 pb-6">
+                        <p class="text-gray-400 leading-relaxed">
+                            Vocaify HR, yapay zeka teknolojisi kullanarak CV'leri otomatik olarak analiz eder, aday profillerini oluşturur ve pozisyonunuza en uygun adayları önerir. Sisteme CV'leri yüklersiniz, AI saniyeler içinde analiz yapar ve size detaylı bir rapor sunar. Ardından akıllı arama ile istediğiniz kriterlere göre filtreleme yapabilir, KPI skorlaması yapabilir ve tüm işe alım sürecini tek platformda yönetebilirsiniz.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="glass rounded-xl overflow-hidden faq-item" onclick="toggleFaq(2)">
+                    <div class="p-6 flex justify-between items-center cursor-pointer">
+                        <h3 class="text-lg font-semibold text-white">Hangi CV formatlarını destekliyorsunuz?</h3>
+                        <i data-lucide="chevron-down" class="w-6 h-6 text-purple-400 faq-icon-2 transition-transform"></i>
+                    </div>
+                    <div class="faq-answer faq-answer-2 px-6 pb-6">
+                        <p class="text-gray-400 leading-relaxed">
+                            PDF, DOCX, DOC ve TXT formatlarındaki CV'leri destekliyoruz. Ayrıca LinkedIn, Kariyer.net, Indeed gibi platformlardan doğrudan CV çekme özelliğimiz de bulunmaktadır. AI motorumuz, farklı dillerdeki (Türkçe, İngilizce vb.) ve farklı formatlardaki CV'leri sorunsuz şekilde işleyebilir.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="glass rounded-xl overflow-hidden faq-item" onclick="toggleFaq(3)">
+                    <div class="p-6 flex justify-between items-center cursor-pointer">
+                        <h3 class="text-lg font-semibold text-white">Verilerim güvende mi?</h3>
+                        <i data-lucide="chevron-down" class="w-6 h-6 text-purple-400 faq-icon-3 transition-transform"></i>
+                    </div>
+                    <div class="faq-answer faq-answer-3 px-6 pb-6">
+                        <p class="text-gray-400 leading-relaxed">
+                            Evet, %100 güvende. Tüm verileriniz end-to-end şifreleme ile korunur ve KVKK ile GDPR standartlarına tam uyumludur. Sunucularımız ISO 27001 sertifikalıdır ve düzenli güvenlik denetimlerinden geçer. Verileriniz asla üçüncü taraflarla paylaşılmaz. Kurumsal paketlerde özel sunucu seçeneği de sunuyoruz.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="glass rounded-xl overflow-hidden faq-item" onclick="toggleFaq(4)">
+                    <div class="p-6 flex justify-between items-center cursor-pointer">
+                        <h3 class="text-lg font-semibold text-white">Ücretsiz deneme süresi var mı?</h3>
+                        <i data-lucide="chevron-down" class="w-6 h-6 text-purple-400 faq-icon-4 transition-transform"></i>
+                    </div>
+                    <div class="faq-answer faq-answer-4 px-6 pb-6">
+                        <p class="text-gray-400 leading-relaxed">
+                            Evet! 14 gün boyunca tüm özelliklere sınırsız erişim ile ücretsiz deneyebilirsiniz. Kredi kartı bilgisi gerekmez. Deneme süreniz bittiğinde otomatik ücretlendirme yapılmaz, devam etmek isterseniz bir plan seçmeniz yeterlidir. Ayrıca ücretsiz demo görüşmesi de talep edebilirsiniz.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="glass rounded-xl overflow-hidden faq-item" onclick="toggleFaq(5)">
+                    <div class="p-6 flex justify-between items-center cursor-pointer">
+                        <h3 class="text-lg font-semibold text-white">Mevcut sistemlerimizle entegre olur mu?</h3>
+                        <i data-lucide="chevron-down" class="w-6 h-6 text-purple-400 faq-icon-5 transition-transform"></i>
+                    </div>
+                    <div class="faq-answer faq-answer-5 px-6 pb-6">
+                        <p class="text-gray-400 leading-relaxed">
+                            Evet! Vocaify HR, RESTful API'ler aracılığıyla mevcut İK sistemleriniz (SAP, Workday, BambooHR vb.) ile kolayca entegre olabilir. Profesyonel ve Kurumsal planlarımızda API erişimi standart olarak gelir. Ayrıca Slack, Microsoft Teams, Gmail gibi popüler araçlarla hazır entegrasyonlarımız bulunmaktadır. Özel entegrasyon ihtiyaçlarınız için teknik ekibimiz size destek verir.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA & Contact Section -->
+    <section id="contact" class="py-20 px-6">
+        <div class="max-w-5xl mx-auto">
+            <!-- CTA -->
+            <div class="glass p-12 rounded-3xl text-center mb-16 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-600/20 to-pink-600/20"></div>
+                <div class="relative z-10">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                        Hemen <span class="gradient-text">Başlayın</span>
+                    </h2>
+                    <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                        14 gün ücretsiz deneyin. Kredi kartı gerekmez. İstediğiniz zaman iptal edebilirsiniz.
+                    </p>
+                    <a href="#contact-form" class="inline-flex items-center gap-2 px-8 py-4 gradient-bg text-white text-lg font-semibold rounded-xl hover:shadow-2xl hover:shadow-purple-500/50 transition-all">
+                        <i data-lucide="rocket" class="w-5 h-5"></i>
+                        Ücretsiz Başla
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div id="contact-form" class="glass p-8 md:p-12 rounded-3xl">
+                <h3 class="text-3xl font-bold text-white mb-2 text-center">İletişime Geçin</h3>
+                <p class="text-gray-400 mb-8 text-center">Sorularınız için bize ulaşın, 24 saat içinde geri dönüş yapalım</p>
+
+                <form class="space-y-6" onsubmit="handleContactSubmit(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Adınız Soyadınız</label>
+                            <input type="text" id="name" required class="w-full px-4 py-3 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Ahmet Yılmaz">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                            <input type="email" id="email" required class="w-full px-4 py-3 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors" placeholder="ahmet@sirket.com">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="company" class="block text-sm font-medium text-gray-300 mb-2">Şirket</label>
+                            <input type="text" id="company" class="w-full px-4 py-3 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Şirket Adı A.Ş.">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">Telefon</label>
+                            <input type="tel" id="phone" class="w-full px-4 py-3 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors" placeholder="+90 555 123 45 67">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-300 mb-2">Mesajınız</label>
+                        <textarea id="message" rows="5" required class="w-full px-4 py-3 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Nasıl yardımcı olabiliriz?"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full px-6 py-4 gradient-bg text-white text-lg font-semibold rounded-xl hover:shadow-xl hover:shadow-purple-500/50 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                        Gönder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-purple-500/20 py-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                            <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">Vocaify HR</span>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Yapay zeka destekli işe alım platformu ile geleceği şekillendirin.
+                    </p>
+                </div>
+
+                <!-- Product -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Ürün</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#features" class="text-gray-400 hover:text-purple-400 transition-colors">Özellikler</a></li>
+                        <li><a href="#pricing" class="text-gray-400 hover:text-purple-400 transition-colors">Fiyatlandırma</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Entegrasyonlar</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Güncellemeler</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Şirket</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Hakkımızda</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Kariyer</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-purple-400 transition-colors">İletişim</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Yasal</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Gizlilik Politikası</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Kullanım Şartları</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">KVKK Metni</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Çerez Politikası</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom -->
+            <div class="pt-8 border-t border-purple-500/20 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-500 text-sm">
+                    © 2025 Vocaify HR. Tüm hakları saklıdır.
+                </p>
+
+                <div class="flex items-center gap-4">
+                    <a href="#" class="w-10 h-10 glass rounded-lg flex items-center justify-center hover:border-purple-500/50 transition-all">
+                        <i data-lucide="twitter" class="w-5 h-5 text-gray-400 hover:text-purple-400"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 glass rounded-lg flex items-center justify-center hover:border-purple-500/50 transition-all">
+                        <i data-lucide="linkedin" class="w-5 h-5 text-gray-400 hover:text-purple-400"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 glass rounded-lg flex items-center justify-center hover:border-purple-500/50 transition-all">
+                        <i data-lucide="github" class="w-5 h-5 text-gray-400 hover:text-purple-400"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 glass rounded-lg flex items-center justify-center hover:border-purple-500/50 transition-all">
+                        <i data-lucide="instagram" class="w-5 h-5 text-gray-400 hover:text-purple-400"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // FAQ Toggle
+        function toggleFaq(index) {
+            const answer = document.querySelector(`.faq-answer-${index}`);
+            const icon = document.querySelector(`.faq-icon-${index}`);
+
+            answer.classList.toggle('active');
+            icon.style.transform = answer.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        // Contact Form Submit
+        function handleContactSubmit(event) {
+            event.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                company: document.getElementById('company').value,
+                phone: document.getElementById('phone').value,
+                message: document.getElementById('message').value
+            };
+
+            // Here you would normally send this to your backend
+            console.log('Form submitted:', formData);
+
+            // Show success message
+            alert('Mesajınız başarıyla gönderildi! En kısa sürede size geri dönüş yapacağız.');
+            event.target.reset();
+        }
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
