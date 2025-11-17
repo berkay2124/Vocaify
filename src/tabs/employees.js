@@ -3,6 +3,13 @@
 import { STATUS_CONFIG, EMPLOYEE_STAGES } from '../config.js';
 import { formatDate } from '../utils.js';
 
+/**
+ * Personeller sekmesini render eder
+ * Aktif ve eski personelleri listeler
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {string} Personeller tab HTML string'i
+ */
 export function renderEmployeesTab(state) {
     const filtered = state.employees
         .filter(e => state.filterStatus === 'all' || e.status === state.filterStatus)
@@ -34,6 +41,13 @@ export function renderEmployeesTab(state) {
     `;
 }
 
+/**
+ * Tek bir personel kartını render eder
+ * Personel bilgileri, performans ve aksiyon butonlarını içerir
+ *
+ * @param {Object} employee - Personel objesi
+ * @returns {string} Personel kartı HTML string'i
+ */
 function renderEmployeeCard(employee) {
     const config = STATUS_CONFIG[employee.status] || {};
 

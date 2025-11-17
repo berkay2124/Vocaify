@@ -1,5 +1,12 @@
 // === LOADER COMPONENT ===
 
+/**
+ * Yükleme (loading) spinner'ını render eder
+ * loading false ise boş string döner
+ *
+ * @param {boolean} loading - Yüklenme durumu
+ * @returns {string} Loader HTML string'i veya boş string
+ */
 export function renderLoader(loading) {
     if (!loading) return '';
 

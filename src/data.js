@@ -6,12 +6,20 @@ import { STORAGE_KEYS, EMPLOYEE_STAGES } from './config.js';
 let stateRef = null;
 let renderCallback = null;
 
+/**
+ * Veri modülünü global state ve render fonksiyonu ile başlatır
+ * @param {Object} state - Global uygulama state objesi
+ * @param {Function} render - Ana render fonksiyonu
+ */
 export function initDataModule(state, render) {
     stateRef = state;
     renderCallback = render;
 }
 
-// Veri Yükleme
+/**
+ * localStorage'dan aday ve personel verilerini yükler
+ * Hata durumunda verileri sıfırlar ve kullanıcıyı bilgilendirir
+ */
 export function loadData() {
     try {
         const candidatesData = window.localStorage.getItem(STORAGE_KEYS.CANDIDATES);
@@ -27,7 +35,10 @@ export function loadData() {
     if (renderCallback) renderCallback();
 }
 
-// Veri Kaydetme
+/**
+ * Aday ve personel verilerini localStorage'a kaydeder
+ * Hata durumunda console'a log yazdırır
+ */
 export function saveData() {
     try {
         window.localStorage.setItem(STORAGE_KEYS.CANDIDATES, JSON.stringify(stateRef.candidates));
@@ -37,7 +48,11 @@ export function saveData() {
     }
 }
 
-// Aday Güncelleme
+/**
+ * Belirtilen ID'ye sahip adayı günceller, kaydeder ve UI'ı render eder
+ * @param {string} id - Güncellenecek adayın ID'si
+ * @param {Object} updatedFields - Güncellenecek alanlar (key-value çiftleri)
+ */
 export function updateCandidate(id, updatedFields) {
     stateRef.candidates = stateRef.candidates.map(c =>
         c.id === id ? { ...c, ...updatedFields, lastUpdated: new Date().toISOString() } : c
@@ -49,7 +64,11 @@ export function updateCandidate(id, updatedFields) {
     if (renderCallback) renderCallback();
 }
 
-// Personel Güncelleme
+/**
+ * Belirtilen ID'ye sahip personeli günceller, kaydeder ve UI'ı render eder
+ * @param {string} id - Güncellenecek personelin ID'si
+ * @param {Object} updatedFields - Güncellenecek alanlar (key-value çiftleri)
+ */
 export function updateEmployee(id, updatedFields) {
     stateRef.employees = stateRef.employees.map(e =>
         e.id === id ? { ...e, ...updatedFields, lastUpdated: new Date().toISOString() } : e

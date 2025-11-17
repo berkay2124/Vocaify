@@ -3,6 +3,13 @@
 import { STATUS_CONFIG, CANDIDATE_STAGES } from '../config.js';
 import { getStats, formatDate } from '../utils.js';
 
+/**
+ * Dashboard (ana sayfa) sekmesini render eder
+ * İstatistikler, aday süreç akışı, son eklenen adaylar ve bekleyen işlemleri gösterir
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {string} Dashboard HTML string'i
+ */
 export function renderDashboard(state) {
     const stats = getStats(state.candidates, state.employees);
     const recentCandidates = state.candidates.slice(0, 5);
@@ -122,6 +129,12 @@ export function renderDashboard(state) {
     `;
 }
 
+/**
+ * Dashboard için aday mini kartını render eder (küçük boyutlu aday kartı)
+ *
+ * @param {Object} candidate - Aday objesi
+ * @returns {string} Mini kart HTML string'i
+ */
 function renderMiniCard(candidate) {
     const config = STATUS_CONFIG[candidate.status] || {};
 

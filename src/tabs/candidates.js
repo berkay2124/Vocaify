@@ -3,6 +3,13 @@
 import { STATUS_CONFIG, CANDIDATE_STAGES, PLATFORMS } from '../config.js';
 import { formatDate } from '../utils.js';
 
+/**
+ * Adaylar sekmesini render eder
+ * Filtreleme seçenekleri ve aday kartlarını listeler
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {string} Adaylar tab HTML string'i
+ */
 export function renderCandidatesTab(state) {
     const filtered = state.candidates
         .filter(c => {
@@ -42,6 +49,13 @@ export function renderCandidatesTab(state) {
     `;
 }
 
+/**
+ * Tek bir aday kartını detaylı olarak render eder
+ * Aday bilgileri, KPI, değerlendirme ve aksiyon butonlarını içerir
+ *
+ * @param {Object} candidate - Aday objesi
+ * @returns {string} Aday kartı HTML string'i
+ */
 export function renderCandidateCard(candidate) {
     const config = STATUS_CONFIG[candidate.status] || {};
 

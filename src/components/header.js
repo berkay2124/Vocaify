@@ -1,5 +1,14 @@
 // === HEADER COMPONENT ===
 
+/**
+ * Uygulamanın üst başlık barını render eder
+ * Logo, uygulama adı, CV yükleme butonu ve veri temizleme butonunu içerir
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @param {Function} handleCVUpload - CV dosyası yükleme event handler fonksiyonu
+ * @param {Function} clearAllData - Tüm verileri temizleme fonksiyonu
+ * @returns {string} Header HTML string'i
+ */
 export function renderHeader(state, handleCVUpload, clearAllData) {
     return `
         <header class="glass border-b border-purple-500/20 sticky top-0 z-40">

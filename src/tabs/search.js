@@ -2,6 +2,13 @@
 
 import { renderCandidateCard } from './candidates.js';
 
+/**
+ * AI Arama sekmesini render eder
+ * Arama çubuğu ve sonuç listesini gösterir
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @returns {string} Arama tab HTML string'i
+ */
 export function renderSearchTab(state) {
     const searchResults = state.candidates.filter(c => c.matchScore > 0);
 

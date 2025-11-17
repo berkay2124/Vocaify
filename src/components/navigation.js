@@ -1,5 +1,13 @@
 // === NAVIGATION COMPONENT ===
 
+/**
+ * Ana navigasyon bar'ını render eder
+ * Dashboard, Adaylar, Personeller, AI Arama ve Analizler sekmelerini içerir
+ *
+ * @param {Object} state - Global uygulama state objesi
+ * @param {Function} setActiveTab - Aktif sekmeyi değiştiren fonksiyon
+ * @returns {string} Navigation HTML string'i
+ */
 export function renderNavigation(state, setActiveTab) {
     const tabs = [
         { id: 'dashboard', label: 'Dashboard', icon: 'trending-up' },
